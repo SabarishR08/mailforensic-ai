@@ -1,4 +1,4 @@
-# Mailforensic Ai Sih26106
+# Mailforensic AI
 
 ![License](https://img.shields.io/badge/license-MIT-green) ![Language](https://img.shields.io/badge/language-Python-informational) ![Docker](https://img.shields.io/badge/docker-ready-2496ed) ![Deploy](https://img.shields.io/badge/deploy-Render-46e3b7)
 
@@ -39,8 +39,8 @@ Flask, WebSockets (Flask-SocketIO) app (handlers: api, dashboard, email, forensi
 ### 1. Clone
 
 ```bash
-git clone https://github.com/SabarishR08/mailforensic-ai-sih26106.git
-cd mailforensic-ai-sih26106
+git clone https://github.com/SabarishR08/mailforensic-ai.git
+cd mailforensic-ai
 ```
 
 ### 2. Install dependencies
@@ -111,7 +111,7 @@ Defined in `render.yaml` (web service `ai-email-forensics`) with `autoDeploy` en
 | **Live Platform** | [sih26106-email-forensics.onrender.com](https://sih26106-email-forensics.onrender.com/dashboard) |
 | **Training Datasets** | [Google Drive Folder](https://drive.google.com/drive/folders/1MqyAdNHZFGVQzfDx5VwszbqbiEgm-Wg0?usp=drive_link) |
 | **Colab Training Notebook** | [Open in Colab](https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1?usp=sharing) |
-| **GitHub Repository** | [github.com/SabarishR08/sih26106](https://github.com/SabarishR08/sih26106) |
+| **GitHub Repository** | [github.com/SabarishR08/mailforensic-ai](https://github.com/SabarishR08/mailforensic-ai) |
 
 ---
 
@@ -344,8 +344,8 @@ Visit **[sih26106-email-forensics.onrender.com](https://sih26106-email-forensics
 
 ```bash
 # Clone the repo
-git clone https://github.com/SabarishR08/sih26106.git
-cd sih26106
+git clone https://github.com/SabarishR08/mailforensic-ai.git
+cd mailforensic-ai
 
 # Install dependencies
 pip install -r requirements.txt
@@ -416,7 +416,7 @@ curl -X POST https://sih26106-email-forensics.onrender.com/email/api/scan/text \
 ## Project Structure
 
 ```
-sih26106/
+mailforensic-ai/
 ├── backend/
 │   ├── ml/                          # Trained models + inference
 │   │   ├── models/
@@ -533,7 +533,7 @@ This project was developed for **Smart India Hackathon 2026** (SIH26106). For ac
 <p align="center">
  <b>Built with by Team Mutex for SIH 2026</b><br>
  <a href="https://sih26106-email-forensics.onrender.com/dashboard">Live Demo</a> •
- <a href="https://github.com/SabarishR08/sih26106">GitHub</a> •
+ <a href="https://github.com/SabarishR08/mailforensic-ai">GitHub</a> •
  <a href="https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1">Colab</a>
 </p>
 
