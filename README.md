@@ -100,7 +100,7 @@ Defined in `render.yaml` (web service `ai-email-forensics`) with `autoDeploy` en
 ---
 
 > **SIH26106** — Smart India Hackathon 2026 | AICTE Problem Statement
-> **Team Mutex** — [Live Demo](https://sih26106-email-forensics.onrender.com/dashboard)
+> [Live Demo](https://sih26106-email-forensics.onrender.com/dashboard)
 
 ---
 
@@ -513,7 +513,7 @@ All tests use synthetic data and mocks — no network, no trained models, no dat
 
 ---
 
-## Team: Mutex
+## Contributors
 
 | Member | Role | Track |
 |--------|------|-------|
@@ -531,7 +531,7 @@ This project was developed for **Smart India Hackathon 2026** (SIH26106). For ac
 ---
 
 <p align="center">
- <b>Built with by Team Mutex for SIH 2026</b><br>
+ <b>Built for SIH 2026</b><br>
  <a href="https://sih26106-email-forensics.onrender.com/dashboard">Live Demo</a> •
  <a href="https://github.com/SabarishR08/mailforensic-ai">GitHub</a> •
  <a href="https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1">Colab</a>
