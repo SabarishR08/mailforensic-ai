@@ -16,6 +16,7 @@ except ImportError:
 from backend.services.gmail_service import fetch_recent_emails, GmailAuthError
 from backend.services.sample_emails import get_sample_emails
 from backend.services.email_scanner import scan_emails, scan_emails_streaming
+from backend.services.threat_log_sync import sync_scan_result_to_threatlog
 from backend.extensions import socketio
 from backend.models import db, EmailScanResult
 from backend.spa import spa_enabled, spa_index
@@ -124,6 +125,7 @@ def scan_gmail():
             full_result=json.dumps(r, default=str),
         )
         db.session.add(scan)
+        sync_scan_result_to_threatlog(r)  # mirror flagged URLs for the URL Guard extension
         log_analysis(r, source=source)
     db.session.commit()
 
@@ -165,6 +167,7 @@ def scan_sample():
             full_result=json.dumps(r, default=str),
         )
         db.session.add(scan)
+        sync_scan_result_to_threatlog(r)  # mirror flagged URLs for the URL Guard extension
         log_analysis(r, source='sample')
     db.session.commit()
 
@@ -321,6 +324,7 @@ def handle_demo_scan(data):
                     full_result=json.dumps(r, default=str),
                 )
                 db.session.add(scan)
+                sync_scan_result_to_threatlog(r)  # mirror flagged URLs for the URL Guard extension
             db.session.commit()
 
     thread = threading.Thread(target=run_scan, daemon=True)

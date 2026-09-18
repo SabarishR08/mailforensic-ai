@@ -113,9 +113,9 @@ async def check_rdap(domain: str) -> Dict:
         return {'source': 'rdap', 'status': 'error', 'error': str(e)}
 
 
-async def unified_url_check(url: str) -> Dict:
+async def unified_url_check(url: str, force_refresh: bool = False) -> Dict:
     """Check URL across all intelligence sources concurrently with caching"""
-    if url in _URL_CHECK_CACHE:
+    if not force_refresh and url in _URL_CHECK_CACHE:
         return dict(_URL_CHECK_CACHE[url])
 
     from urllib.parse import urlparse

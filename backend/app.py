@@ -42,11 +42,15 @@ def create_app():
     from backend.routes.email import email_bp
     from backend.routes.forensic import forensic_bp
     from backend.routes.api import api_bp
+    from backend.routes.extension import extension_bp
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(email_bp, url_prefix='/email')
     app.register_blueprint(forensic_bp, url_prefix='/forensic')
     app.register_blueprint(api_bp, url_prefix='/api')
+    # Extension API: /check-url lives at the root by contract; the rest
+    # of its routes carry their own /api/ prefix.
+    app.register_blueprint(extension_bp)
 
     @app.route('/')
     def home():
