@@ -200,6 +200,50 @@ class FeatureEngineer:
             features.append(1 if parsed.netloc.count('-') > 3 else 0)
 
         except Exception:
-            return [0] * 41
+            return [0] * 36
 
         return features
+
+    def get_feature_names(self, feature_type: str = 'email') -> List[str]:
+        """
+        Get feature names for interpretation and importance analysis.
+        Ported from email-phishing-detector (Group B consolidation).
+
+        Args:
+            feature_type: 'email' or 'url'
+
+        Returns:
+            TF-IDF names (if fitted) followed by the manual feature names,
+            in the exact order produced by the _extract_*_manual_features
+            methods.
+        """
+        email_manual_names = [
+            'text_length', 'word_count', 'url_count', 'has_urls', 'many_urls',
+            'urgent_keyword_count', 'has_urgent', 'money_keyword_count', 'has_money',
+            'identity_keyword_count', 'has_identity', 'special_char_count',
+            'exclamation_count', 'question_count', 'capital_ratio', 'high_capital_ratio',
+            'email_count', 'phone_count', 'has_click_here', 'has_verify_account',
+            'has_suspended', 'has_unusual_activity', 'has_confirm_identity',
+            'html_link_count', 'href_count', 'is_html', 'misspelling_count',
+            'suspicious_tld_count', 'digit_ratio'
+        ]
+        url_manual_names = [
+            'url_length', 'domain_length', 'path_length', 'query_length',
+            'dot_count', 'dash_count', 'underscore_count', 'slash_count',
+            'question_count', 'equal_count', 'at_count', 'ampersand_count',
+            'percent_count', 'hash_count', 'is_https', 'is_http', 'has_ip',
+            'suspicious_tld', 'popular_domain', 'subdomain_count', 'many_subdomains',
+            'has_port', 'path_depth', 'deep_path', 'digit_ratio', 'high_digit_ratio',
+            'domain_digit_ratio', 'hex_encoding_count', 'has_hex_encoding',
+            'is_url_shortener', 'suspicious_keyword_count', 'has_suspicious_keyword',
+            'double_slash_count', 'at_symbol_count', 'domain_dash_count', 'many_dashes'
+        ]
+
+        if feature_type == 'email':
+            if self.email_vectorizer is None:
+                return list(email_manual_names)
+            return self.email_vectorizer.get_feature_names_out().tolist() + email_manual_names
+        else:  # url
+            if self.url_vectorizer is None:
+                return list(url_manual_names)
+            return self.url_vectorizer.get_feature_names_out().tolist() + url_manual_names

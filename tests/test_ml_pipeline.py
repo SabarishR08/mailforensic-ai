@@ -215,8 +215,10 @@ class TestFeatureEngineer:
     def test_url_manual_features_empty_returns_zeros(self):
         fe = FeatureEngineer()
         features = fe._extract_url_manual_features("")
-        # Empty URL triggers the except handler → [0]*41
-        assert len(features) == 41
+        # Empty URL triggers the except handler → zero vector of the
+        # correct length (36 manual URL features; the old constant 41
+        # silently misaligned vectors on parse failures)
+        assert len(features) == 36
         assert all(f == 0 for f in features)
 
     def test_fit_transform_email(self):
