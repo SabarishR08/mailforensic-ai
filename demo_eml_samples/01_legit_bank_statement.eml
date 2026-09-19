@@ -1,0 +1,35 @@
+From: statements@bankofamerica.com
+To: victim-analyst@defense-corp.com
+Subject: Monthly Account Statement - August 2026
+Date: Sun, 24 Aug 2026 23:00:00 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Authentication-Results: mx.google.com;
+	spf=pass (google.com: domain of statements@bankofamerica.com designates 171.161.202.155 as permitted sender) smtp.mailfrom=statements@bankofamerica.com;
+	dkim=pass header.i=@bankofamerica.com header.s=boa2026 header.b=vX7k2j;
+	dmarc=pass (p=REJECT sp=REJECT dis=none) header.from=bankofamerica.com
+Received: from mail-gateway.bankofamerica.com (171.161.202.155)
+	by mx.google.com with ESMTPS id boa-corp-991823
+	for <victim-analyst@defense-corp.com>; Sun, 24 Aug 2026 23:00:01 -0500 (CDT)
+Return-Path: <statements@bankofamerica.com>
+Message-ID: <st-20260824-stmt-88219@smtpprod.bankofamerica.com>
+
+Dear Bank of America Customer,
+
+Your electronic monthly account statement for August 2026 is now available.
+
+Account Summary:
+- Account Ending In: ...4819
+- Statement Period: Jul 24, 2026 - Aug 23, 2026
+- Available Balance: $14,829.40
+
+To view your complete itemized statement, please sign in securely to your account through the official mobile application or by visiting:
+https://www.bankofamerica.com
+
+Security Reminder: Bank of America will never ask you to verify your full card PIN or online banking password via email or phone call.
+
+Thank you for choosing Bank of America.
+
+Customer Service Team
+Bank of America, N.A. Member FDIC.

@@ -1,0 +1,39 @@
+From: "Robert Vance, Chief Executive Officer" <ceo@exec-holding-corp.com>
+To: finance-controller@victim-corp.com
+Subject: URGENT: Confidential Wire Transfer - Vendor Settlement before 4 PM
+Date: Mon, 25 Aug 2026 14:15:22 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Authentication-Results: mx.google.com;
+	spf=neutral (google.com: 185.220.101.5 is neither permitted nor denied by domain of exec-holding-corp.com);
+	dkim=none;
+	dmarc=fail (p=none) header.from=exec-holding-corp.com
+Received: from vps-mailer-out.net (185.220.101.5)
+	by mx.google.com with ESMTP id corp-wire-evasion-0012
+	for <finance-controller@victim-corp.com>; Mon, 25 Aug 2026 14:15:23 +0000
+Message-ID: <wire-req-20260825-9941@vps-mailer-out.net>
+Reply-To: ceo-executive-office@consultant-desk.com
+
+Hi Sarah,
+
+Are you at your desk right now? 
+
+I am currently in an all-day confidential executive board session and unable to take phone calls. We have reached an agreement on the overseas asset acquisition, but per the closing agreement terms, our initial earnest settlement must be wired prior to 4:00 PM EST today.
+
+Please process an immediate federal wire transfer for $48,750.00 to our external transaction escrow partner:
+
+Bank: JPMorgan Chase Bank, N.A.
+Beneficiary Name: Apex Commercial Settlements LLC
+Routing Transit: 021000021
+Account Number: 49201948201
+Reference: ACQ-SETTLE-SEC77
+
+Please prioritize this immediately and reply with the PDF wire confirmation receipt as soon as the transfer reference is issued. Do not discuss this with the broader department until the official press announcement tomorrow morning.
+
+Regards,
+
+Robert Vance
+Chief Executive Officer
+Executive Management Group
+Sent from my iPad

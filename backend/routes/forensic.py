@@ -241,6 +241,9 @@ def api_analyze_eml():
         'geo': geo_data,
         'geo_correlation': geo_correlation,
         'risk_assessment': risk_assessment,
+        'consensus_arbitration': risk_assessment.get('consensus_arbitration', {}),
+        'threat_intel_details': risk_assessment.get('threat_intel_details', {}),
+        'cognitive': risk_assessment.get('cognitive_vectors', {}),
     }
 
     # --- 6. Persist to DB ---

@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { predBadgeBg, riskBadgeBg, riskClass } from '../lib/format'
 import InvestigationTimeline from '../components/InvestigationTimeline'
 import ExplainableRiskBadge from '../components/ExplainableRiskBadge'
 import AttackReconstruction from '../components/AttackReconstruction'
 import SocPlaybookCard from '../components/SocPlaybookCard'
+import NeuroSymbolicConsensusCard from '../components/NeuroSymbolicConsensusCard'
 
 // --- Pre-built sample emails (same content as the Jinja template) ---
 const SAMPLE_EMAILS: Record<string, string> = {
@@ -191,13 +193,13 @@ Sent from my iPhone`,
 }
 
 const QUICK_INSERTS: { key: string; label: string; kind: string; icon: string }[] = [
-  { key: 'legit_statement', label: 'Legit: Monthly Statement', kind: 'green', icon: 'fa-check-circle' },
-  { key: 'legit_application', label: 'Legit: Job Application', kind: 'green', icon: 'fa-check-circle' },
-  { key: 'legit_welcome', label: 'Legit: Welcome Email', kind: 'green', icon: 'fa-check-circle' },
-  { key: 'phish_paypal', label: 'Phishing: PayPal Alert', kind: 'red', icon: 'fa-exclamation-triangle' },
-  { key: 'phish_bank', label: 'Phishing: Bank OTP', kind: 'red', icon: 'fa-exclamation-triangle' },
-  { key: 'phish_prize', label: 'Phishing: Prize Won', kind: 'red', icon: 'fa-exclamation-triangle' },
-  { key: 'suspicious_bec', label: 'Suspicious: CEO Wire', kind: 'orange', icon: 'fa-exclamation-circle' },
+  { key: 'legit_statement', label: 'Bank Statement (FPS-Shield)', kind: 'green', icon: 'fa-shield-halved' },
+  { key: 'suspicious_bec', label: 'Stealth CEO Wire (FNE-Hunter)', kind: 'orange', icon: 'fa-user-tie' },
+  { key: 'phish_paypal', label: 'PayPal Account Alert', kind: 'red', icon: 'fa-triangle-exclamation' },
+  { key: 'phish_bank', label: 'Bank OTP Intercept', kind: 'red', icon: 'fa-building-columns' },
+  { key: 'legit_application', label: 'Candidate Resume', kind: 'green', icon: 'fa-check-circle' },
+  { key: 'legit_welcome', label: 'Welcome Onboarding', kind: 'green', icon: 'fa-check-circle' },
+  { key: 'phish_prize', label: 'Lottery Prize Scam', kind: 'red', icon: 'fa-gift' },
 ]
 
 const INSERT_BG: Record<string, string> = {
@@ -226,118 +228,6 @@ function riskColor(level: string) {
   if (l === 'low') return { text: '#6ee7b7' }
   if (l === 'safe') return { text: '#93c5fd' }
   return { text: '#a5b4fc' }
-}
-
-function NeuroSymbolicConsensusCard({ arbitration, threatIntel, cognitive }: { arbitration: any; threatIntel: any; cognitive: any }) {
-  if (!arbitration && !threatIntel && !cognitive) return null
-
-  const protocol = arbitration?.protocol || 'STANDARD_BAYESIAN_CONSENSUS'
-  const isFPS = protocol === 'ANTI_FALSE_POSITIVE_SHIELD'
-  const isFNE = protocol === 'ANTI_FALSE_NEGATIVE_HUNTER'
-
-  const abuse = threatIntel?.abuseipdb || {}
-  const vt = threatIntel?.virustotal || {}
-  const rdap = threatIntel?.rdap || {}
-  const cog = cognitive || {}
-
-  return (
-    <div className="src-panel mt-3" style={{ border: isFPS ? '1px solid #10b981' : isFNE ? '1px solid #ef4444' : '1px solid rgba(85,230,212,0.25)', borderRadius: '10px', overflow: 'hidden' }}>
-      <div className="src-panel-header" style={{ background: isFPS ? 'rgba(16,185,129,0.12)' : isFNE ? 'rgba(239,68,68,0.12)' : 'rgba(85,230,212,0.06)' }}>
-        <span className="fw-bold d-flex align-items-center gap-2" style={{ color: isFPS ? '#34d399' : isFNE ? '#f87171' : 'var(--cyan)' }}>
-          <i className={`fas ${isFPS ? 'fa-shield-halved' : isFNE ? 'fa-crosshairs' : 'fa-brain'}`}></i>
-          Neuro-Symbolic Bayesian Consensus Engine (NS-BCT)
-        </span>
-        <span className="src-panel-badge" style={{
-          background: isFPS ? 'rgba(16,185,129,0.2)' : isFNE ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)',
-          color: isFPS ? '#6ee7b7' : isFNE ? '#fca5a5' : '#94a3b8',
-          border: `1px solid ${isFPS ? '#10b981' : isFNE ? '#ef4444' : 'rgba(255,255,255,0.2)'}`
-        }}>
-          {isFPS ? '🛡️ ANTI-FALSE-POSITIVE SHIELD' : isFNE ? '🚨 ANTI-FALSE-NEGATIVE HUNTER' : '⚖️ BAYESIAN EQUILIBRIUM'}
-        </span>
-      </div>
-
-      <div className="p-3">
-        {/* Rationale alert */}
-        <div style={{
-          padding: '10px 14px',
-          borderRadius: '8px',
-          background: isFPS ? 'rgba(16,185,129,0.08)' : isFNE ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)',
-          borderLeft: `4px solid ${isFPS ? '#10b981' : isFNE ? '#ef4444' : 'var(--cyan)'}`,
-          marginBottom: '14px',
-          fontSize: '0.84rem'
-        }}>
-          <strong>Arbitration Proof: </strong>
-          <span style={{ color: '#e2e8f0' }}>{arbitration?.rationale || 'Multi-axis forensic invariants match statistical probabilities.'}</span>
-        </div>
-
-        {/* Shield or threat factors list */}
-        {(arbitration?.shield_factors || arbitration?.threat_factors) && (
-          <div className="mb-3">
-            <div className="small fw-semibold mb-1" style={{ color: isFPS ? '#34d399' : '#f87171', fontSize: '0.78rem' }}>
-              {isFPS ? 'CRYPTOGRAPHIC PROOF & IDENTITY CERTIFICATION:' : 'ZERO-DAY EVASION & COGNITIVE VECTORS:'}
-            </div>
-            <ul className="mb-0 ps-3 small" style={{ color: '#cbd5e1' }}>
-              {(arbitration?.shield_factors || arbitration?.threat_factors || []).map((f: string, i: number) => (
-                <li key={i}>{f}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Live Multi-Feed Signals */}
-        <div className="row g-2 pt-1 border-top border-secondary">
-          {/* AbuseIPDB */}
-          <div className="col-md-4">
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="small text-muted" style={{ fontSize: '0.7rem' }}><i className="fas fa-satellite-dish me-1"></i> AbuseIPDB Live</div>
-              <div className="fw-bold mt-1" style={{ color: abuse.abuse_score > 30 ? '#f87171' : '#34d399', fontSize: '0.82rem' }}>
-                {abuse.abuse_score !== undefined ? `${abuse.abuse_score}% Threat (${abuse.total_reports || 0} reports)` : '0% Clean'}
-              </div>
-              <div className="text-muted" style={{ fontSize: '0.68rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                ISP: {abuse.isp || 'Verified Infrastructure'}
-              </div>
-            </div>
-          </div>
-
-          {/* VirusTotal */}
-          <div className="col-md-4">
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="small text-muted" style={{ fontSize: '0.7rem' }}><i className="fas fa-shield-virus me-1"></i> VirusTotal Multi-Engine</div>
-              <div className="fw-bold mt-1" style={{ color: vt.malicious > 0 ? '#f87171' : '#34d399', fontSize: '0.82rem' }}>
-                {vt.malicious !== undefined ? `${vt.malicious} Malicious / ${vt.harmless || 0} Clean` : '0/70 Detections'}
-              </div>
-              <div className="text-muted" style={{ fontSize: '0.68rem' }}>
-                {vt.malicious > 0 ? 'Engine Blacklist Match' : 'Clean Vendor Consensus'}
-              </div>
-            </div>
-          </div>
-
-          {/* RDAP Domain Age */}
-          <div className="col-md-4">
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="small text-muted" style={{ fontSize: '0.7rem' }}><i className="fas fa-calendar-check me-1"></i> ICANN RDAP Domain Age</div>
-              <div className="fw-bold mt-1" style={{ color: rdap.is_nrd ? '#f87171' : '#34d399', fontSize: '0.82rem' }}>
-                {rdap.domain_age_days ? `${rdap.domain_age_days.toLocaleString()} days old` : 'Enterprise Legacy'}
-              </div>
-              <div className="text-muted" style={{ fontSize: '0.68rem' }}>
-                Tier: {rdap.is_nrd ? '⚠️ Newly Registered (<30d)' : (rdap.maturity_tier?.replace('_', ' ').toUpperCase() || 'ESTABLISHED')}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Cognitive Deception Analysis */}
-        {cog.evasion_analysis && (
-          <div className="mt-2 pt-2 border-top border-secondary small text-muted" style={{ fontSize: '0.75rem' }}>
-            <span className="text-light fw-semibold"><i className="fas fa-microchip me-1" style={{ color: 'var(--amber)' }}></i> Cognitive AI Intent: </span>
-            <span>{cog.evasion_analysis} </span>
-            {cog.financial_coercion && <span className="badge bg-danger ms-1">Financial Wire Coercion</span>}
-            {cog.authority_impersonation && cog.authority_impersonation !== 'None' && <span className="badge bg-warning text-dark ms-1">{cog.authority_impersonation}</span>}
-          </div>
-        )}
-      </div>
-    </div>
-  )
 }
 
 // ─── Single result card ───────────────────────────────────────────────────────
@@ -565,9 +455,9 @@ export default function EmailScannerPage() {
   const [gmailStatus, setGmailStatus] = useState<Status>(null)
   const [sampleStatus, setSampleStatus] = useState<Status>(null)
   const [busy, setBusy] = useState<string | null>(null) // which action is running
-  const [showManual, setShowManual] = useState(false)
+  const [showManual, setShowManual] = useState(true)
   const [showUpload, setShowUpload] = useState(false)
-  const [text, setText] = useState('')
+  const [text, setText] = useState(SAMPLE_EMAILS['legit_statement'] || '')
   const [results, setResults] = useState<React.ReactNode | null>(null)
   const [emlPreview, setEmlPreview] = useState('')
   const [emlName, setEmlName] = useState('')
@@ -930,18 +820,21 @@ export default function EmailScannerPage() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 flex-wrap align-items-center">
                 <button
-                  className="btn btn-success"
+                  className="btn btn-primary font-monospace fw-semibold px-4 py-2"
                   onClick={scanText}
                   disabled={busy !== null}
                 >
-                  <i className={'fas ' + (busy === 'text' ? 'fa-spinner fa-spin' : 'fa-brain')}></i>{' '}
-                  Analyze with ML
+                  <i className={'fas ' + (busy === 'text' ? 'fa-spinner fa-spin' : 'fa-brain me-2')}></i>{' '}
+                  {busy === 'text' ? 'Running NS-BCT Triangulation...' : 'Run Forensic & NS-BCT Scan'}
                 </button>
-                <button className="btn btn-outline-secondary" onClick={() => setText('')}>
-                  <i className="fas fa-eraser"></i> Clear
+                <button className="btn btn-outline-secondary px-3 py-2" onClick={() => setText('')}>
+                  <i className="fas fa-eraser me-1"></i> Clear Text
                 </button>
+                <Link to="/forensic/scan" className="btn btn-outline-info ms-auto py-2">
+                  <i className="fas fa-microscope me-1"></i> Deep .EML File Inspector <i className="fas fa-arrow-right ms-1"></i>
+                </Link>
               </div>
             </div>
           </div>
