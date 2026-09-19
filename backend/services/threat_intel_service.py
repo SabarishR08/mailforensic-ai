@@ -76,6 +76,19 @@ def _init_threat_cache():
                     cached_at REAL
                 )
             ''')
+            # RDAP Authoritative RIR IP Network Allocation cache (TTL 7 days)
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS rdap_ip_cache (
+                    ip TEXT PRIMARY KEY,
+                    handle TEXT,
+                    network_name TEXT,
+                    country TEXT,
+                    start_address TEXT,
+                    end_address TEXT,
+                    raw_json TEXT,
+                    cached_at REAL
+                )
+            ''')
             conn.commit()
     except Exception as e:
         logger.debug(f"Threat cache initialization error: {e}")
@@ -304,11 +317,17 @@ class ThreatIntelService:
         except Exception as e:
             logger.debug(f"RDAP cache read error: {e}")
 
-        # Live RDAP Bootstrap Query
+        # Live RDAP Bootstrap Query per RFC 7480 / RFC 9083 / RFC 9224
+        rdap_headers = {
+            "Accept": "application/rdap+json, application/json",
+            "User-Agent": "MailForensic-AI/2.0 (SIH-2026; Cybersecurity-Forensics)"
+        }
         try:
             with httpx.Client(follow_redirects=True, timeout=4.0) as client:
-                resp = client.get(f"https://rdap.org/domain/{clean_domain}")
-                if resp.status_code == 200:
+                resp = client.get(f"https://rdap.org/domain/{clean_domain}", headers=rdap_headers)
+                if resp.status_code == 429:
+                    logger.warning(f"RDAP rate limit (429) encountered for {clean_domain} (Cloudflare threshold). Utilizing graceful fallback.")
+                elif resp.status_code == 200:
                     data = resp.json()
                     events = data.get("events", [])
                     reg_date_str = None
@@ -367,6 +386,96 @@ class ThreatIntelService:
             'is_nrd': False,
             'maturity_tier': 'unresolved',
             'source': 'offline'
+        }
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # 4. RDAP Authoritative RIR IP Network Allocation Lookup
+    # ──────────────────────────────────────────────────────────────────────────
+    @classmethod
+    def lookup_ip_rdap(cls, ip: str) -> Dict[str, Any]:
+        """
+        Authoritative RIR (ARIN, RIPE, APNIC, LACNIC, AFRINIC) network allocation query.
+        Fetches official registered network entity, IP block range, and country.
+        """
+        if not ip or ip in ("127.0.0.1", "localhost", "unknown"):
+            return {'ip': ip, 'status': 'invalid'}
+
+        clean_ip = ip.strip()
+        now = time.time()
+
+        # Check local cache (TTL 7 days)
+        try:
+            with sqlite3.connect(CACHE_DB) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT handle, network_name, country, start_address, end_address, cached_at FROM rdap_ip_cache WHERE ip = ?",
+                    (clean_ip,)
+                )
+                row = cursor.fetchone()
+                if row and (now - row[5]) < (7 * 86400):
+                    return {
+                        'ip': clean_ip,
+                        'handle': row[0] or '',
+                        'network_name': row[1] or '',
+                        'country': row[2] or '',
+                        'start_address': row[3] or '',
+                        'end_address': row[4] or '',
+                        'source': 'cache'
+                    }
+        except Exception as e:
+            logger.debug(f"RDAP IP cache read error: {e}")
+
+        # Live RDAP IP query via rdap.org bootstrap
+        rdap_headers = {
+            "Accept": "application/rdap+json, application/json",
+            "User-Agent": "MailForensic-AI/2.0 (SIH-2026; Cybersecurity-Forensics)"
+        }
+        try:
+            with httpx.Client(follow_redirects=True, timeout=4.0) as client:
+                resp = client.get(f"https://rdap.org/ip/{clean_ip}", headers=rdap_headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    handle = data.get("handle", "")
+                    name = data.get("name", "")
+                    country = data.get("country", "")
+                    start_addr = data.get("startAddress", "")
+                    end_addr = data.get("endAddress", "")
+
+                    # Cache result
+                    try:
+                        with sqlite3.connect(CACHE_DB) as conn:
+                            conn.cursor().execute(
+                                """
+                                INSERT OR REPLACE INTO rdap_ip_cache
+                                (ip, handle, network_name, country, start_address, end_address, raw_json, cached_at)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                """,
+                                (clean_ip, handle, name, country, start_addr, end_addr, resp.text, now)
+                            )
+                            conn.commit()
+                    except Exception as ce:
+                        logger.debug(f"Failed to cache RDAP IP data: {ce}")
+
+                    return {
+                        'ip': clean_ip,
+                        'handle': handle,
+                        'network_name': name,
+                        'country': country,
+                        'start_address': start_addr,
+                        'end_address': end_addr,
+                        'source': 'rdap_ip_live'
+                    }
+        except Exception as e:
+            logger.debug(f"RDAP IP lookup failed for {clean_ip}: {e}")
+
+        return {
+            'ip': clean_ip,
+            'handle': '',
+            'network_name': '',
+            'country': '',
+            'start_address': '',
+            'end_address': '',
+            'source': 'unresolved'
         }
 
 

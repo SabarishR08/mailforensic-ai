@@ -94,8 +94,12 @@ async def check_rdap(domain: str) -> Dict:
     if domain in _RDAP_CACHE:
         return dict(_RDAP_CACHE[domain])
     try:
-        async with httpx.AsyncClient(timeout=2.5) as client:
-            resp = await client.get(f'https://rdap.org/domain/{domain}')
+        rdap_headers = {
+            'Accept': 'application/rdap+json, application/json',
+            'User-Agent': 'MailForensic-AI/2.0 (SIH-2026; Cybersecurity-Forensics)'
+        }
+        async with httpx.AsyncClient(follow_redirects=True, timeout=3.5) as client:
+            resp = await client.get(f'https://rdap.org/domain/{domain}', headers=rdap_headers)
             if resp.status_code == 200:
                 data = resp.json()
                 events = data.get('events', [])
