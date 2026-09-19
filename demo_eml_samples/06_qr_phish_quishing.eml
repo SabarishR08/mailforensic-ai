@@ -1,0 +1,42 @@
+From: Microsoft 365 Security <security-alerts@mslogin-verify-notice.com>
+To: employee@company.com
+Subject: Action Required: Unusual sign-in detected on your account
+Date: Sat, 19 Sep 2026 07:59:49 -0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============6301844981834300981=="
+
+--===============6301844981834300981==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Dear User,
+
+We detected an unusual sign-in attempt from a new device. Your account requir=
+es
+immediate verification. Please scan the QR code attached to this message using
+your phone camera to review the activity and secure your account.
+
+Alternatively visit: http://194.26.29.11/ms-login/auth
+
+This link expires in 24 hours.
+
+Microsoft Account Team
+
+--===============6301844981834300981==
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="security-verification.png"
+Content-ID: <qrcode-verify>
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAAQgAAAEIAQAAAACLjVdSAAABlElEQVR4nO1a0ZICMQgjHf//l3MD
+od3qiy9nlzvcnXUrMiNGCCkK2ptjvHOwr8f/xcM4E4TGWOtaVlaJdBzxeCQCBiPCAupKq/XDw5Cf
+ng4K/elmrRLpOO0BA6NQOFPlnjjKeHBWTKbLXXHcXi/UGos8/DatjfuL7ed8uV1+cK4R3QVP2VEn
+0nHKA+LS4A5nUzVaPxr2W1NL0Z1Lj0390a5ehlSHJ4S5JkskQoUIn0KRHvQgU4eFTg0OcVgKRvp5
+/qDSwYI1Qn2s/sJSkR6rF1NPMXFIGlry6SOhyK0LHYptL4Oe+QEHAXGKNcSxgU6hSI/xhwFBoHAT
+NzTa8Qe0WRGhUh0loVDPbVgv5h/b5YbFwxwF0XOmVKTnPCBJRq38Cr3ajz8sBOmuN3jt5QKTdvzx
+skTwRw5RwcbzD0v2uCbs7D1fpxRZNpYsm3542Gy1SKUqoe5HO/0xriUjLXIuFNuYQKZgpIc8oCkI
+n2RZyUg/7EGRKkWjWBLkd9/lz/AHtIRuLuDXz1Ht+APf/zuU/F5GEY8foQzUx1GptI4AAAAASUVO
+RK5CYII=
+
+--===============6301844981834300981==--
