@@ -33,7 +33,7 @@ export default function DemoPage() {
   useEffect(() => {
     const el = document.getElementById('demo-map')
     if (!el || mapRef.current) return
-    const map = L.map(el, { zoomControl: false, attributionControl: false }).setView([20, 0], 2)
+    const map = L.map(el, { zoomControl: false, attributionControl: false, preferCanvas: true }).setView([20, 0], 2)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 16,
       attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',

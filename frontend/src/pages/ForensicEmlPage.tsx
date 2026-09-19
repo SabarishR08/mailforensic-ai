@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { api } from '../lib/api'
 import { escapeHtml, riskClass, riskColor } from '../lib/format'
+import ForensicRouteMap from '../components/ForensicRouteMap'
 
 type Phase = 'upload' | 'loading' | 'error' | 'results'
 
@@ -129,6 +130,9 @@ function Results({ report, onReset }: { report: any; onReset: () => void }) {
   const auth = forensic.authentication || {}
   const routing = forensic.routing || {}
   const geo = report.geo || {}
+  const geoCorr = report.geo_correlation || {}
+  const temporal = forensic.temporal_analysis || {}
+  const anon = geo.anonymizer || {}
   const ml = report.ml || {}
   const riskLevel = String(risk.risk_level || 'unknown').toLowerCase()
   const mlPred = ml.prediction || 'unknown'
@@ -277,22 +281,51 @@ function Results({ report, onReset }: { report: any; onReset: () => void }) {
         </div>
       </div>
 
-      {/* Geolocation & Routing */}
+      {/* Global Routing & Cross-Border Infrastructure Map */}
+      <ForensicRouteMap originGeo={geo} hops={routing.hops} geoCorrelation={geoCorr} />
+
+      {/* Geolocation & Real-Time Intelligence */}
       <div className="row g-3 mb-3">
         <div className="col-md-6">
           <div className="card p-4 h-100">
             <h6 className="fw-bold text-uppercase mb-3" style={{ fontSize: '0.78rem', letterSpacing: '0.8px', color: 'var(--text-muted)' }}>
-              <i className="fas fa-globe text-info me-2"></i> Origin Geolocation Telemetry
+              <i className="fas fa-globe text-info me-2"></i> Origin Geolocation & Cyber Intelligence
             </h6>
             {geo.ip && geo.source !== 'unknown' ? (
               <table className="table table-sm mb-0">
                 <tbody>
                   <tr><td className="text-muted ps-0">Origin IP</td><td className="mono text-info">{geo.ip}</td></tr>
                   <tr><td className="text-muted ps-0">Location</td><td>{geo.city || '—'}, {geo.country || '—'} ({geo.country_code || 'XX'})</td></tr>
-                  <tr><td className="text-muted ps-0">ISP / ASN</td><td>{geo.org || '—'}</td></tr>
+                  <tr><td className="text-muted ps-0">ISP / ASN</td><td>{geo.org || '—'} {geo.asn ? `(${geo.asn})` : ''}</td></tr>
                   <tr>
-                    <td className="text-muted ps-0">Hosting Type</td>
-                    <td>{geo.is_hosting ? <span className="text-warning">Cloud / VPS Datacenter</span> : <span className="text-success">Residential / Direct ISP</span>}</td>
+                    <td className="text-muted ps-0">Anonymizer Status</td>
+                    <td>
+                      {anon.is_tor ? (
+                        <span className="badge bg-danger text-white"><i className="fas fa-shield-virus me-1"></i> Tor Exit Node Detected</span>
+                      ) : anon.is_vpn_proxy ? (
+                        <span className="badge bg-warning text-dark"><i className="fas fa-user-secret me-1"></i> VPN / Proxy Detected</span>
+                      ) : anon.is_bulletproof ? (
+                        <span className="badge bg-danger text-white"><i className="fas fa-server me-1"></i> Bulletproof / High-Abuse Host</span>
+                      ) : geo.is_hosting ? (
+                        <span className="badge bg-secondary text-white">Cloud / VPS Datacenter</span>
+                      ) : (
+                        <span className="badge bg-success text-white"><i className="fas fa-check-circle me-1"></i> Direct Residential ISP</span>
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="text-muted ps-0">Clock Alignment</td>
+                    <td>
+                      {temporal.has_anomaly ? (
+                        <span className="text-warning fw-bold" style={{ fontSize: '0.8rem' }}>
+                          <i className="fas fa-clock me-1"></i> Timezone Drift: {temporal.drift_hours}h discrepancy
+                        </span>
+                      ) : (
+                        <span className="text-success" style={{ fontSize: '0.8rem' }}>
+                          <i className="fas fa-check-circle me-1"></i> Aligned with physical timezone
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -331,6 +364,50 @@ function Results({ report, onReset }: { report: any; onReset: () => void }) {
           </div>
         </div>
       </div>
+
+      {/* Cross-Border Payload Infrastructure Correlation */}
+      {geoCorr.correlated && (
+        <div className="card p-4 mb-3" style={{ borderLeft: '4px solid #e74c3c' }}>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h6 className="fw-bold text-uppercase mb-0" style={{ fontSize: '0.8rem', letterSpacing: '0.8px', color: '#e74c3c' }}>
+              <i className="fas fa-satellite-dish me-2"></i> Cross-Border Infrastructure Divergence Matrix
+            </h6>
+            <span className="badge bg-danger text-white">
+              {Math.round(geoCorr.max_distance_km || 0).toLocaleString()} km Physical Divergence
+            </span>
+          </div>
+          <p className="text-muted mb-3" style={{ fontSize: '0.84rem' }}>
+            Attacker relayed email via <strong>{geoCorr.sender_origin?.country || 'Unknown'}</strong>, but malicious landing payload is hosted on remote infrastructure.
+          </p>
+          <div className="row g-2">
+            {(geoCorr.targets || []).map((t: any, idx: number) => (
+              <div className="col-md-6" key={idx}>
+                <div className="p-3 rounded" style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)' }}>
+                  <div className="d-flex justify-content-between align-items-start mb-1">
+                    <span className="mono text-danger fw-bold" style={{ fontSize: '0.82rem' }}>🎯 {t.hostname || t.ip}</span>
+                    <span className="badge bg-dark text-warning">{t.country_code}</span>
+                  </div>
+                  <div className="text-muted small mb-1">
+                    Location: <strong>{t.city}, {t.country}</strong> · ASN: <strong>{t.asn || t.org || 'Cloud'}</strong>
+                  </div>
+                  <div className="text-muted small">
+                    Physical Distance: <span className="text-danger fw-bold">{Math.round(t.distance_km).toLocaleString()} km</span> from Mail Relay
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {geoCorr.anomalies?.length > 0 && (
+            <div className="mt-3 p-2 rounded" style={{ background: 'rgba(231,76,60,0.1)', border: '1px solid rgba(231,76,60,0.3)' }}>
+              {geoCorr.anomalies.map((anom: string, i: number) => (
+                <div key={i} className="text-danger small fw-semibold">
+                  <i className="fas fa-radiation-alt me-1"></i> {anom}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Risk Breakdown */}
       <div className="card p-4 mb-3">

@@ -45,7 +45,7 @@ export default function DashboardPage() {
     if (mapRef.current) return
     const el = document.getElementById('geo-map')
     if (!el) return
-    const map = L.map(el).setView([20, 0], 2)
+    const map = L.map(el, { preferCanvas: true }).setView([20, 0], 2)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 16,
       attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',

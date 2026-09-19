@@ -44,9 +44,44 @@ def geo_threats():
                 'risk_score': s.risk_score or 0,
                 'risk_level': s.risk_level or 'Unknown',
                 'email_id': s.email_id,
+                'is_tor': geo.get('anonymizer', {}).get('is_tor', False),
+                'anonymizer_type': geo.get('anonymizer', {}).get('anonymizer_type', ''),
                 'timestamp': s.timestamp.isoformat() if s.timestamp else '',
             })
     return jsonify({'points': points, 'count': len(points)})
+
+
+@api_bp.route('/geo/lookup', methods=['GET', 'POST'])
+def api_geo_lookup():
+    """
+    On-demand real-time deep investigation endpoint for any IP, domain, or host.
+    Used for live audience/judge tests during SIH presentations.
+    """
+    target = ''
+    if request.method == 'POST':
+        target = request.json.get('target', '') if request.is_json else request.form.get('target', '')
+    else:
+        target = request.args.get('target', '')
+
+    target = (target or '').strip()
+    if not target:
+        return jsonify({'error': 'No target IP or domain provided'}), 400
+
+    from backend.services.geo_service import get_geo_service
+    geo_service = get_geo_service()
+
+    if target.startswith('http://') or target.startswith('https://'):
+        geo_result = geo_service.geolocate_url_target(target)
+    elif any(c.isalpha() for c in target) and '.' in target:
+        geo_result = geo_service.lookup_domain(target)
+    else:
+        geo_result = geo_service.lookup_ip(target)
+
+    return jsonify({
+        'status': 'success',
+        'target': target,
+        'result': geo_result
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -344,6 +379,8 @@ def threat_map_points():
                 'timestamp': s.timestamp.isoformat() if s.timestamp else '',
                 'auth': forensic.get('authentication', {}),
                 'trust_score': forensic.get('trust_score', 0),
+                'anonymizer': geo.get('anonymizer', {}),
+                'temporal_analysis': forensic.get('temporal_analysis', {}),
             })
 
         # Routing hop points (for polyline trail)
@@ -367,6 +404,42 @@ def threat_map_points():
                 'email_id': s.email_id or '',
                 'risk_level': s.risk_level or 'Unknown',
             })
+
+        # Dual-Vector Payload Infrastructure Points & Cross-Border Correlation Vectors
+        geo_corr = full.get('geo_correlation', {})
+        if geo_corr.get('correlated'):
+            for t in geo_corr.get('targets', []):
+                tlat = t.get('latitude')
+                tlon = t.get('longitude')
+                if tlat and tlon and tlat != 0.0 and tlon != 0.0:
+                    points.append({
+                        'lat': tlat,
+                        'lon': tlon,
+                        'type': 'payload_infra',
+                        'country': t.get('country', ''),
+                        'country_code': t.get('country_code', ''),
+                        'city': t.get('city', ''),
+                        'asn': t.get('asn', ''),
+                        'org': t.get('org', ''),
+                        'hostname': t.get('hostname', ''),
+                        'target_url': t.get('url', ''),
+                        'distance_km': t.get('distance_km', 0),
+                        'risk_score': 90 if t.get('anonymizer', {}).get('is_tor') else 75,
+                        'risk_level': 'Critical' if t.get('anonymizer', {}).get('is_tor') else 'High',
+                        'prediction': 'phishing',
+                        'email_id': s.email_id or '',
+                        'anonymizer': t.get('anonymizer', {}),
+                    })
+                    # Add correlation vector if origin coordinates exist
+                    if lat and lon and lat != 0.0 and lon != 0.0:
+                        points.append({
+                            'type': 'correlation_vector',
+                            'email_id': s.email_id or '',
+                            'origin': {'lat': lat, 'lon': lon, 'city': geo.get('city', ''), 'country': geo.get('country', '')},
+                            'target': {'lat': tlat, 'lon': tlon, 'city': t.get('city', ''), 'country': t.get('country', '')},
+                            'distance_km': t.get('distance_km', 0),
+                            'cross_border': t.get('cross_border', False),
+                        })
 
     return jsonify({'points': points, 'count': len(points)})
 

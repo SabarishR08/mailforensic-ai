@@ -191,12 +191,19 @@ def api_analyze_eml():
         except Exception:
             pass
 
-    # 4f. Geo enrichment of sender IP
+    # 4f. Geo enrichment of sender IP & cross-border payload infrastructure correlation
     origin_ip = forensic_result.get('routing', {}).get('origin_ip')
     geo_data = {}
+    geo_correlation = {}
     if origin_ip:
         try:
             geo_data = geo_service.lookup_ip(origin_ip)
+        except Exception:
+            pass
+
+    if geo_data and all_urls:
+        try:
+            geo_correlation = geo_service.correlate_sender_with_payload(geo_data, all_urls)
         except Exception:
             pass
 
@@ -208,6 +215,7 @@ def api_analyze_eml():
         'qr_analysis': qr_analysis,
         'forensic': forensic_result,
         'geo_data': geo_data,
+        'geo_correlation': geo_correlation,
         'content_analysis': {'nlp_result': {}},
     })
 
@@ -231,6 +239,7 @@ def api_analyze_eml():
         'qr_analysis': qr_analysis,
         'url_results': url_results,
         'geo': geo_data,
+        'geo_correlation': geo_correlation,
         'risk_assessment': risk_assessment,
     }
 

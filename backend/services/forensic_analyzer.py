@@ -303,6 +303,54 @@ class ForensicAnalyzer:
                 'detail': 'Received header timestamps are out of chronological order (potential header spoofing/tampering)',
             })
 
+        # Deep Real-Time Geolocation & Anonymizer Forensics
+        origin_ip = routing_analysis.get('origin_ip')
+        origin_geo = {}
+        temporal_intel = {'has_anomaly': False, 'status': 'SKIPPED'}
+        if origin_ip and geo_service:
+            try:
+                origin_geo = geo_service.lookup_ip(origin_ip)
+                anon = origin_geo.get('anonymizer', {})
+                if anon.get('is_tor'):
+                    mismatches.append({
+                        'type': 'TOR_EXIT_NODE_ORIGIN',
+                        'severity': 'CRITICAL',
+                        'detail': f"Active Tor exit node detected! {anon.get('details', '')}",
+                    })
+                elif anon.get('is_vpn_proxy'):
+                    mismatches.append({
+                        'type': 'ANONYMIZING_PROXY_ORIGIN',
+                        'severity': 'HIGH',
+                        'detail': f"Commercial VPN/Anonymizing Proxy detected: {anon.get('details', '')}",
+                    })
+                elif anon.get('is_bulletproof'):
+                    mismatches.append({
+                        'type': 'BULLETPROOF_HOSTING_ORIGIN',
+                        'severity': 'HIGH',
+                        'detail': f"Origin IP hosted on high-abuse/bulletproof infrastructure: {anon.get('details', '')}",
+                    })
+                elif origin_geo.get('is_residential_pool'):
+                    mismatches.append({
+                        'type': 'BOTNET_RESIDENTIAL_ORIGIN',
+                        'severity': 'HIGH',
+                        'detail': f"Compromised residential broadband pool detected: {anon.get('details', '')}",
+                    })
+
+                # Temporal-Geographic Clock Analysis (Timezone Spoofing)
+                date_header = msg.get('Date', '')
+                if date_header:
+                    temporal_intel = geo_service.analyze_temporal_alignment(
+                        date_header, origin_geo.get('timezone', 'UTC')
+                    )
+                    if temporal_intel.get('has_anomaly'):
+                        mismatches.append({
+                            'type': 'TEMPORAL_GEO_SPOOFING',
+                            'severity': 'HIGH',
+                            'detail': f"Temporal-Geographic Clock Desynchronization: {temporal_intel.get('detail')}",
+                        })
+            except Exception as e:
+                logger.debug(f"Geo enrichment error in forensic analyzer: {e}")
+
         analysis = {
             'evidence_id': evidence_id,
             'evidence_sha256': evidence_sha256,
@@ -322,6 +370,8 @@ class ForensicAnalyzer:
                 'all_pass': spf_status == 'PASS' and dkim_status == 'PASS' and dmarc_status == 'PASS',
             },
             'routing': routing_analysis,
+            'origin_geo': origin_geo,
+            'temporal_analysis': temporal_intel,
             'mismatches': mismatches,
             'mismatch_count': len(mismatches),
         }

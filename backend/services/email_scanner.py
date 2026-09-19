@@ -16,7 +16,8 @@ from backend.services.qr_service import QREmailAnalyzer
 from backend.services.geo_service import get_geo_service
 from backend.services.forensic_analyzer import ForensicAnalyzer
 from backend.services.risk_scoring import RiskScoringEngine
-from backend.services.gemini_service import classify_email_nlp
+from backend.services.gemini_service import classify_email_nlp, extract_cognitive_vectors
+from backend.services.threat_intel_service import threat_intel
 from backend.utils.url_utils import extract_urls
 
 nest_asyncio.apply()
@@ -91,11 +92,17 @@ async def scan_single_email(email_data: dict, index: int) -> dict:
         'details': url_intel_results,
     }
 
-    # 5. Multi-LLM API Classification (Groq -> Gemini -> NVIDIA -> ML fallback)
-    nlp_result = await classify_email_nlp(body)
+    # 5. Multi-LLM API Classification & Cognitive Deception Vector Extraction
+    nlp_task = classify_email_nlp(body)
+    cog_task = extract_cognitive_vectors(body)
+    llm_res, cog_res = await asyncio.gather(nlp_task, cog_task, return_exceptions=True)
+
+    nlp_result = llm_res if not isinstance(llm_res, Exception) else {'category': 'Unknown', 'confidence': 0.0}
+    cognitive_vectors = cog_res if not isinstance(cog_res, Exception) else {
+        'urgency_score': 0, 'financial_coercion': False, 'administrative_purity': 5, 'deception_verdict': 'neutral'
+    }
 
     # If Multi-LLM returned a high-confidence prediction, fuse it with ML prediction
-    # to eliminate false positives & false negatives
     llm_cat = (nlp_result.get('category') or '').strip().lower()
     llm_conf = float(nlp_result.get('confidence') or 0.0)
     llm_provider = nlp_result.get('provider', '')
@@ -104,7 +111,6 @@ async def scan_single_email(email_data: dict, index: int) -> dict:
     final_confidence = ml_confidence
 
     if llm_cat in ['phishing', 'legitimate', 'suspicious'] and llm_conf >= 0.7:
-        # LLM overrides or reinforces ML
         if ml_prediction != llm_cat:
             logger.info(f"AI LLM ({llm_provider}) overriding ML prediction '{ml_prediction}' -> '{llm_cat}' (conf={llm_conf})")
             final_prediction = llm_cat
@@ -118,20 +124,66 @@ async def scan_single_email(email_data: dict, index: int) -> dict:
     if content_for_forensic:
         forensic_result = forensic.analyze(content_for_forensic, geo_service=geo_service)
 
-    # 7. Geo enrichment of sender IP
+    # 7. Geo enrichment of sender IP & cross-border payload infrastructure correlation
     origin_ip = forensic_result.get('routing', {}).get('origin_ip')
     geo_data = {}
     if origin_ip:
         geo_data = geo_service.lookup_ip(origin_ip)
 
-    # 8. Calculate unified composite risk score
+    # 7b. Live Global Threat Intelligence (AbuseIPDB, VirusTotal, ICANN RDAP)
+    abuse_data = {}
+    if origin_ip:
+        try:
+            abuse_data = threat_intel.check_ip_abuse(origin_ip)
+        except Exception as e:
+            logger.debug(f"AbuseIPDB check error: {e}")
+
+    # Extract sender domain
+    sender_raw = forensic_result.get('headers', {}).get('from', '')
+    sender_domain = ''
+    if '@' in sender_raw:
+        sender_domain = sender_raw.split('@')[-1].split('>')[0].strip().lower()
+    elif all_urls:
+        try:
+            from urllib.parse import urlparse
+            sender_domain = urlparse(all_urls[0]).netloc.lower()
+        except Exception:
+            pass
+
+    vt_data = {}
+    rdap_data = {}
+    if sender_domain:
+        try:
+            vt_data = threat_intel.check_virustotal_domain(sender_domain)
+            rdap_data = threat_intel.check_domain_age_rdap(sender_domain)
+        except Exception as e:
+            logger.debug(f"VT/RDAP error: {e}")
+
+    threat_intel_details = {
+        'abuseipdb': abuse_data,
+        'virustotal': vt_data,
+        'rdap': rdap_data,
+    }
+
+    # Correlate sender origin with payload infrastructure
+    geo_correlation = {}
+    if geo_data and all_urls:
+        try:
+            geo_correlation = geo_service.correlate_sender_with_payload(geo_data, all_urls)
+        except Exception as e:
+            logger.debug(f"Geo correlation error: {e}")
+
+    # 8. Calculate Neuro-Symbolic Bayesian Consensus risk score (Anti-FP & Anti-FN)
     risk_assessment = RiskScoringEngine.calculate({
         'ml_result': {'prediction': final_prediction, 'confidence': final_confidence},
         'threat_intel': {'threat_score': max_ti_score},
+        'threat_intel_details': threat_intel_details,
+        'cognitive': cognitive_vectors,
         'url_intelligence': url_intelligence_summary,
         'qr_analysis': qr_analysis,
         'forensic': forensic_result,
         'geo_data': geo_data,
+        'geo_correlation': geo_correlation,
         'content_analysis': {'nlp_result': nlp_result},
     })
 
@@ -151,9 +203,13 @@ async def scan_single_email(email_data: dict, index: int) -> dict:
         'url_results': threat_intel_results,
         'qr_analysis': qr_analysis,
         'nlp': nlp_result,
+        'cognitive': cognitive_vectors,
+        'threat_intel_details': threat_intel_details,
+        'consensus_arbitration': risk_assessment.get('consensus_arbitration', {}),
         'forensic': forensic_result,
         'chain_of_custody': forensic_result.get('chain_of_custody', {}),
         'geo': geo_data,
+        'geo_correlation': geo_correlation,
         'risk_assessment': risk_assessment,
         'timestamp': datetime.now().isoformat(),
     }

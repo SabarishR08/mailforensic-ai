@@ -19,6 +19,7 @@ export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [searching, setSearching] = useState<boolean>(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/campaigns')
@@ -35,12 +36,14 @@ export default function CampaignsPage() {
     if (!searchQuery.trim()) return
 
     setSearching(true)
+    setSearchError(null)
     try {
       const res = await fetch(`/api/campaigns/search?q=${encodeURIComponent(searchQuery)}`)
+      if (!res.ok) throw new Error(`Search failed: HTTP ${res.status}`)
       const data = await res.json()
       setSearchResults(data.results || [])
-    } catch (e) {
-      alert('IOC Search failed')
+    } catch (e: any) {
+      setSearchError(e.message || 'IOC Search failed')
     } finally {
       setSearching(false)
     }
@@ -67,6 +70,11 @@ export default function CampaignsPage() {
             <i className="fas fa-search me-2 text-cyan"></i>
             Global IOC & Evidence Search (Search IP, Domain, Hash, Sender, or Subject):
           </label>
+          {searchError && (
+            <div className="alert alert-danger py-1 px-3 mb-2 small">
+              <i className="fas fa-exclamation-circle me-1"></i> {searchError}
+            </div>
+          )}
           <div className="input-group">
             <input
               type="text"

@@ -80,7 +80,8 @@ async def classify_with_groq(email_text: str) -> Optional[Dict[str, Any]]:
             async with httpx.AsyncClient(timeout=15) as client:
                 resp = await client.post(url, json=payload, headers=headers)
                 if resp.status_code == 200:
-                    content = resp.json()["choices"][0]["message"]["content"]
+                    msg = resp.json()["choices"][0]["message"]
+                    content = msg.get("content") or msg.get("reasoning") or ""
                     parsed = clean_json_response(content)
                     if parsed and "category" in parsed:
                         parsed["provider"] = "groq"
@@ -291,4 +292,150 @@ async def analyze_threat_fusion(analysis_data: dict) -> dict:
             logger.warning(f"NVIDIA threat fusion failed: {e}")
 
     return {'summary': 'Automated heuristic & ML forensic analysis complete.', 'enhanced_risk': None}
+
+
+def extract_heuristic_cognitive_vectors(email_text: str) -> Dict[str, Any]:
+    """Deterministic fallback for cognitive vectors when LLM APIs are offline."""
+    text_lower = (email_text or "").lower()
+    
+    # Check financial coercion & wire transfer indicators
+    fin_patterns = [
+        r'\bwire\s+transfer\b', r'\bbeneficiary\s+bank\b', r'\brouting\s+number\b',
+        r'\bswift\b', r'\biban\b', r'\bgift\s+card\b', r'\bpayroll\b',
+        r'\binvoice\s*#?\d+\b', r'\bbank\s+account\b', r'\bconfidential\s+acquisition\b',
+        r'\bprocess\s+payment\b', r'\bbitcoin\b', r'\bcrypto\b'
+    ]
+    financial_coercion = any(re.search(p, text_lower) for p in fin_patterns)
+    
+    # Check authority impersonation
+    auth_patterns = [
+        (r'\bceo\b|\bchief\s+executive\b|\bpresident\b', 'CEO/Executive'),
+        (r'\bcfo\b|\btreasurer\b|\bfinance\s+director\b', 'CFO/Finance'),
+        (r'\bit\s+support\b|\bsecurity\s+team\b|\bsystem\s+administrator\b', 'IT/Security'),
+        (r'\bpaypal\b|\bbank\s+of\s+america\b|\bchase\b|\bwellsfargo\b', 'Financial Institution'),
+        (r'\birs\b|\btax\s+authority\b|\blegal\s+counsel\b', 'Legal/Government')
+    ]
+    authority = 'None'
+    for pat, label in auth_patterns:
+        if re.search(pat, text_lower):
+            authority = label
+            break
+            
+    # Check administrative purity (routine statements, notifications, receipts with NO demands)
+    admin_patterns = [
+        r'\bmonthly\s+account\s+statement\b', r'\byour\s+statement\s+is\s+now\s+available\b',
+        r'\bno\s+action\s+is\s+required\b', r'\bofficial\s+website\s+or\s+mobile\s+application\b',
+        r'\bwelcome\s+to\b', r'\bapplication\s+for\b', r'\bdiscussion\s+or\s+demonstration\b',
+        r'\bsecurity\s+patches\s+applied\b', r'\bweekly\s+summary\b'
+    ]
+    admin_matches = sum(1 for p in admin_patterns if re.search(p, text_lower))
+    administrative_purity = min(10, admin_matches * 3)
+    
+    # Urgency score
+    urgency_words = ['urgent', 'immediately', 'within 24 hours', 'action required', 'account suspended', 'limited access', 'critical']
+    urgency_count = sum(1 for w in urgency_words if w in text_lower)
+    urgency_score = min(10, urgency_count * 3)
+    
+    # Determine verdict
+    if financial_coercion and (authority in ('CEO/Executive', 'CFO/Finance') or 'confidential' in text_lower):
+        verdict = 'conversational_bec'
+        evasion_analysis = 'Detected Business Email Compromise (BEC) pattern: Executive wire/financial demand masked with conversational tone.'
+    elif administrative_purity >= 6 and not financial_coercion:
+        verdict = 'benign_administrative'
+        evasion_analysis = 'Routine administrative correspondence without coercive demands.'
+    elif urgency_score >= 6 and ('verify' in text_lower or 'password' in text_lower or 'login' in text_lower):
+        verdict = 'credential_harvest'
+        evasion_analysis = 'High-pressure urgency coupled with authentication credential solicitation.'
+    else:
+        verdict = 'neutral'
+        evasion_analysis = 'Standard communication flow.'
+        
+    return {
+        'urgency_score': urgency_score,
+        'financial_coercion': financial_coercion,
+        'authority_impersonation': authority,
+        'administrative_purity': administrative_purity,
+        'deception_verdict': verdict,
+        'evasion_analysis': evasion_analysis,
+        'provider': 'cognitive_heuristic_engine'
+    }
+
+
+async def extract_cognitive_vectors(email_text: str) -> Dict[str, Any]:
+    """
+    Extract cognitive manipulation and psychological vectors from email text
+    using Groq / NVIDIA NIM / Gemini with fallback to deterministic cognitive heuristics.
+    """
+    if not email_text or not email_text.strip():
+        return extract_heuristic_cognitive_vectors("")
+
+    prompt = (
+        "You are an expert cognitive cybersecurity forensic analyst.\n"
+        "Analyze this email text for social engineering, urgency, financial demands, and administrative markers.\n"
+        "Respond ONLY with valid JSON matching this schema:\n"
+        "{\n"
+        '  "urgency_score": 0-10,\n'
+        '  "financial_coercion": true/false,\n'
+        '  "authority_impersonation": "None|CEO/Executive|CFO/Finance|IT/Security|Financial Institution|Legal/Government",\n'
+        '  "administrative_purity": 0-10,\n'
+        '  "deception_verdict": "benign_administrative|conversational_bec|credential_harvest|neutral",\n'
+        '  "evasion_analysis": "one sentence explaining the social engineering or administrative intent"\n'
+        "}\n\n"
+        f"Email Text:\n{email_text[:2500]}"
+    )
+
+    # 1. Try Groq
+    for key in GROQ_KEYS:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                    json={
+                        "model": "openai/gpt-oss-20b",
+                        "messages": [
+                            {"role": "system", "content": "You are a cybersecurity AI. Output ONLY valid JSON."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "max_tokens": 200,
+                        "temperature": 0.1
+                    }
+                )
+                if resp.status_code == 200:
+                    msg = resp.json()["choices"][0]["message"]
+                    content = msg.get("content") or msg.get("reasoning") or ""
+                    parsed = clean_json_response(content)
+                    if parsed and "deception_verdict" in parsed:
+                        parsed["provider"] = "groq_openai_gpt_oss_20b"
+                        return parsed
+        except Exception as e:
+            logger.debug(f"Groq cognitive vector extraction error: {e}")
+
+    # 2. Try NVIDIA NIM
+    if NVIDIA_API_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(
+                    "https://integrate.api.nvidia.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {NVIDIA_API_KEY}", "Content-Type": "application/json"},
+                    json={
+                        "model": "meta/llama-3.2-11b-vision-instruct",
+                        "messages": [
+                            {"role": "system", "content": "You are a cybersecurity AI. Output ONLY valid JSON."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "max_tokens": 200,
+                        "temperature": 0.1
+                    }
+                )
+                if resp.status_code == 200:
+                    parsed = clean_json_response(resp.json()["choices"][0]["message"]["content"])
+                    if parsed and "deception_verdict" in parsed:
+                        parsed["provider"] = "nvidia_llama_3.2"
+                        return parsed
+        except Exception as e:
+            logger.debug(f"NVIDIA cognitive vector extraction error: {e}")
+
+    # 3. Fallback to deterministic heuristic cognitive engine
+    return extract_heuristic_cognitive_vectors(email_text)
 

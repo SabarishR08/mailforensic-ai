@@ -48,6 +48,7 @@ export const api = {
   mapPoints: (days: number, riskLevel = '') => j(`/api/threat-map/points?days=${days}&risk_level=${riskLevel}`),
   mapStats: (days: number) => j(`/api/threat-map/stats?days=${days}`),
   mapRecent: (limit = 10) => j(`/api/threat-map/recent?limit=${limit}`),
+  geoLookup: (target: string) => post('/api/geo/lookup', { target }),
 
   // --- Email scanning ---
   scanGmail: (limit: number) => post('/email/api/scan/gmail', { limit }),

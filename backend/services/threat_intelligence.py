@@ -23,16 +23,18 @@ async def check_virustotal(url: str) -> Dict:
     if not VIRUSTOTAL_API_KEY:
         return {'source': 'virustotal', 'status': 'no_api_key', 'malicious_count': 0}
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
+        import base64
+        url_id = base64.urlsafe_b64encode(url.encode()).decode().strip('=')
+        async with httpx.AsyncClient(timeout=4.0) as client:
             headers = {'x-apikey': VIRUSTOTAL_API_KEY}
-            resp = await client.get(f'https://www.virustotal.com/api/v3/urls', headers=headers, params={'url': url})
+            resp = await client.get(f'https://www.virustotal.com/api/v3/urls/{url_id}', headers=headers)
             if resp.status_code == 200:
                 data = resp.json().get('data', {}).get('attributes', {}).get('last_analysis_stats', {})
                 malicious = data.get('malicious', 0) + data.get('suspicious', 0)
                 total = sum(data.values())
                 return {'source': 'virustotal', 'status': 'success', 'malicious_count': malicious, 'total_scans': total,
                         'is_malicious': malicious > 0}
-            return {'source': 'virustotal', 'status': 'error', 'malicious_count': 0}
+            return {'source': 'virustotal', 'status': 'not_found', 'malicious_count': 0}
     except Exception as e:
         return {'source': 'virustotal', 'status': 'error', 'error': str(e), 'malicious_count': 0}
 

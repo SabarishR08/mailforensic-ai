@@ -29,7 +29,7 @@ export default function ForensicReportPage() {
     if (mapRef.current) return
     const el = document.getElementById('forensic-map')
     if (!el) return
-    const map = L.map(el).setView([geo.latitude, geo.longitude], 8)
+    const map = L.map(el, { preferCanvas: true }).setView([geo.latitude, geo.longitude], 8)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 16,
       attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',

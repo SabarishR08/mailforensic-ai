@@ -43,22 +43,152 @@
   .layer-toggle { display: flex; align-items: center; gap: 10px; margin: 8px 0; cursor: pointer; }
   .layer-toggle input[type=checkbox] { accent-color: var(--accent-violet); width: 16px; height: 16px; cursor: pointer; }
   .layer-toggle label { cursor: pointer; font-size: 12px; color: var(--text-primary); font-weight: 500; }
-  .section-divider { border-top: 1px solid var(--border-default); margin: 16px 0; }
+  /* =========================================================
+     Leaflet Dark Theme Popup Overrides (Force Dark High-Contrast)
+     ========================================================= */
   .leaflet-popup-content-wrapper {
-    background: var(--bg-panel);
-    color: var(--text-primary);
-    border-radius: 10px;
-    border: 1px solid var(--border-default);
+    background: #0D0D12 !important;
+    color: #F8FAFC !important;
+    border-radius: 12px !important;
+    border: 1px solid #272732 !important;
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(124, 58, 237, 0.15) !important;
+    padding: 0 !important;
   }
-  .leaflet-popup-tip { background: var(--bg-panel); }
-  .popup-title { font-weight: 800; font-size: 14px; margin-bottom: 6px; color: var(--text-primary); }
-  .popup-row { font-size: 12px; margin: 4px 0; color: var(--text-muted); }
-  .popup-row strong { color: var(--text-primary); }
+  .leaflet-popup-tip-container {
+    overflow: visible !important;
+  }
+  .leaflet-popup-tip {
+    background: #0D0D12 !important;
+    border: 1px solid #272732 !important;
+    box-shadow: none !important;
+  }
+  .leaflet-popup-content {
+    margin: 14px 16px !important;
+    line-height: 1.45 !important;
+    font-size: 12px !important;
+    color: #F8FAFC !important;
+  }
+  .leaflet-container a.leaflet-popup-close-button {
+    color: #94A3B8 !important;
+    top: 10px !important;
+    right: 12px !important;
+    font-size: 18px !important;
+    padding: 2px !important;
+    transition: color 0.15s ease !important;
+  }
+  .leaflet-container a.leaflet-popup-close-button:hover {
+    color: #FFFFFF !important;
+  }
+
+  .popup-card {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #22222D;
+  }
+  .popup-id-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 2px 7px;
+    border-radius: 6px;
+    max-width: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .popup-pred-badge {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .popup-pred-phishing {
+    background: rgba(244, 63, 94, 0.18);
+    border: 1px solid rgba(244, 63, 94, 0.5);
+    color: #FB7185;
+  }
+  .popup-pred-legitimate {
+    background: rgba(52, 211, 153, 0.18);
+    border: 1px solid rgba(52, 211, 153, 0.5);
+    color: #34D399;
+  }
+  .popup-pred-suspicious {
+    background: rgba(251, 191, 36, 0.18);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #FBBF24;
+  }
+  .popup-subject {
+    font-size: 12px;
+    font-weight: 600;
+    color: #F1F5F9;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .popup-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .popup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    color: #94A3B8;
+    margin: 0;
+  }
+  .popup-row strong {
+    color: #CBD5E1;
+    font-weight: 600;
+  }
+  .popup-val {
+    color: #F1F5F9;
+    font-weight: 500;
+    text-align: right;
+  }
+  .popup-auth-pills {
+    display: inline-flex;
+    gap: 3px;
+    font-size: 9.5px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .auth-tag {
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+  .auth-tag.pass {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(52, 211, 153, 0.35);
+  }
+  .auth-tag.fail {
+    background: rgba(244, 63, 94, 0.15);
+    color: #FB7185;
+    border: 1px solid rgba(244, 63, 94, 0.35);
+  }
+  .auth-tag.neutral {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94A3B8;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
   .pred-legend { display: flex; gap: 14px; margin: 8px 0; }
   .pred-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
   .pred-dot { width: 10px; height: 10px; border-radius: 50%; }
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 {% endblock %}
 
 {% block content %}
@@ -179,19 +309,50 @@
       iconAnchor: [size/2, size/2],
     });
 
-    var predLabel = data.prediction || 'unknown';
-    var predBadgeColor = predColors[predLabel] || '#71717A';
+    var predLabel = (data.prediction || 'unknown').toLowerCase();
+    var predClass = predLabel === 'phishing' ? 'popup-pred-phishing' : (predLabel === 'legitimate' ? 'popup-pred-legitimate' : 'popup-pred-suspicious');
 
-    var popup = '<div class="popup-title">' + (data.from || data.email_id || 'Unknown') + '</div>' +
-      '<div class="popup-row"><strong>Subject:</strong> ' + (data.subject || 'N/A') + '</div>' +
-      '<div class="popup-row"><strong>Prediction:</strong> <span style="color:' + predBadgeColor + ';font-weight:700;text-transform:uppercase">' + predLabel + '</span></div>' +
-      '<div class="popup-row"><strong>Location:</strong> ' + (data.city || '?') + ', ' + (data.country || '?') + '</div>' +
-      '<div class="popup-row"><strong>Risk:</strong> <span class="badge-risk risk-' + (data.risk_level||'low').toLowerCase() + '">' + data.risk_level + ' (' + data.risk_score + '/100)</span></div>' +
-      '<div class="popup-row"><strong>Auth:</strong> SPF ' + (data.auth && data.auth.spf ? data.auth.spf : '?') + ' / DKIM ' + (data.auth && data.auth.dkim ? data.auth.dkim : '?') + ' / DMARC ' + (data.auth && data.auth.dmarc ? data.auth.dmarc : '?') + '</div>' +
-      '<div class="popup-row"><strong>Trust:</strong> ' + (data.trust_score || 0) + '/100</div>' +
-      '<div class="popup-row"><strong>Time:</strong> ' + (data.timestamp ? new Date(data.timestamp).toLocaleString() : 'N/A') + '</div>';
+    // Sender or ID formatting
+    var displayId = data.from || data.email_id || 'Unknown Threat Origin';
+    var shortId = displayId.length > 26 ? displayId.substring(0, 24) + '...' : displayId;
+    var subjectText = data.subject || '(No Subject Available)';
 
-    return L.marker([lat, lon], { icon: icon }).bindPopup(popup, { maxWidth: 320 });
+    // Auth tags helper
+    function getAuthTag(val) {
+      var v = (val || '?').toUpperCase();
+      var cls = v === 'PASS' ? 'pass' : (v === 'FAIL' ? 'fail' : 'neutral');
+      return '<span class="auth-tag ' + cls + '">' + v + '</span>';
+    }
+
+    var authHtml = '<span class="popup-auth-pills">SPF ' + getAuthTag(data.auth && data.auth.spf) + 
+                   ' DKIM ' + getAuthTag(data.auth && data.auth.dkim) + 
+                   ' DMARC ' + getAuthTag(data.auth && data.auth.dmarc) + '</span>';
+
+    var riskClass = (data.risk_level || 'low').toLowerCase();
+    var riskBadge = '<span class="badge-risk risk-' + riskClass + '">' + (data.risk_level || 'Low') + ' (' + (data.risk_score || 0) + '/100)</span>';
+
+    var trustVal = data.trust_score !== undefined ? data.trust_score : 50;
+    var trustColor = (trustVal >= 80) ? '#34D399' : (trustVal >= 60 ? '#FBBF24' : '#FB7185');
+    var trustHtml = '<span style="color:' + trustColor + ';font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + trustVal + '/100</span>';
+
+    var timeStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Just now';
+
+    var popup = '<div class="popup-card">' +
+      '<div class="popup-header">' +
+        '<span class="popup-id-badge" title="' + displayId + '">' + shortId + '</span>' +
+        '<span class="popup-pred-badge ' + predClass + '">' + predLabel.toUpperCase() + '</span>' +
+      '</div>' +
+      '<div class="popup-subject">' + subjectText + '</div>' +
+      '<div class="popup-grid">' +
+        '<div class="popup-row"><strong>Location</strong><span class="popup-val">' + (data.city || '?') + ', ' + (data.country || '?') + '</span></div>' +
+        '<div class="popup-row"><strong>Risk Score</strong>' + riskBadge + '</div>' +
+        '<div class="popup-row"><strong>Auth</strong>' + authHtml + '</div>' +
+        '<div class="popup-row"><strong>Trust</strong>' + trustHtml + '</div>' +
+        '<div class="popup-row"><strong>Timestamp</strong><span class="popup-val" style="font-size:10.5px;color:#94A3B8;">' + timeStr + '</span></div>' +
+      '</div>' +
+    '</div>';
+
+    return L.marker([lat, lon], { icon: icon }).bindPopup(popup, { minWidth: 260, maxWidth: 320 });
   }
 
   function createRouteLine(hops) {
