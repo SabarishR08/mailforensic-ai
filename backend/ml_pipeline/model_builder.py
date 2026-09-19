@@ -80,18 +80,94 @@ class ModelBuilder:
                                   cv=5, stack_method='predict_proba', n_jobs=-1)
 
     def calibrate_model(self, model, X_val, y_val, method: str = 'isotonic'):
+        """Calibrate a prefit model's probabilities on held-out validation data.
+
+        Ported from email-phishing-detector (Group B consolidation), kept
+        version-agnostic: sklearn >= 1.6 recommends FrozenEstimator (the
+        ``cv='prefit'`` value is deprecated there), older sklearn uses it.
+        """
         logger.info(f"Calibrating model using {method} method...")
-        calibrated = CalibratedClassifierCV(model, method=method, cv='prefit')
+        try:
+            from sklearn.frozen import FrozenEstimator
+            calibrated = CalibratedClassifierCV(FrozenEstimator(model), method=method)
+        except ImportError:
+            calibrated = CalibratedClassifierCV(model, method=method, cv='prefit')
         calibrated.fit(X_val, y_val)
         logger.info("Model calibration complete")
         return calibrated
 
     def cross_validate(self, model, X, y, cv: int = 5) -> Dict[str, float]:
+        """Stratified CV across accuracy/precision/recall/F1, with std devs.
+
+        Full metric set restored from email-phishing-detector (Group B
+        consolidation); flat ``*_mean``/``*_std`` keys and the legacy
+        ``accuracy_mean``/``f1_mean`` aliases are all emitted.
+        """
+        from sklearn.model_selection import cross_validate as sk_cross_validate
+
         logger.info(f"Performing {cv}-fold cross-validation...")
         cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=self.random_state)
-        results = {
-            'accuracy_mean': cross_val_score(model, X, y, cv=cv_splitter, scoring='accuracy', n_jobs=-1).mean(),
-            'f1_mean': cross_val_score(model, X, y, cv=cv_splitter, scoring='f1', n_jobs=-1).mean(),
-        }
-        logger.info(f"CV Accuracy: {results['accuracy_mean']:.4f}, F1: {results['f1_mean']:.4f}")
+        cv_results = sk_cross_validate(
+            model, X, y, cv=cv_splitter, n_jobs=-1,
+            scoring=('accuracy', 'precision', 'recall', 'f1'),
+        )
+        results: Dict[str, float] = {}
+        for metric in ('accuracy', 'precision', 'recall', 'f1'):
+            scores = cv_results[f'test_{metric}']
+            results[f'{metric}_mean'] = float(scores.mean())
+            results[f'{metric}_std'] = float(scores.std())
+        # (accuracy_mean / f1_mean double as the legacy flat keys)
+
+        logger.info("Cross-validation results:")
+        logger.info(f"  Accuracy: {results['accuracy_mean']:.4f} (+/- {results['accuracy_std']:.4f})")
+        logger.info(f"  Precision: {results['precision_mean']:.4f} (+/- {results['precision_std']:.4f})")
+        logger.info(f"  Recall: {results['recall_mean']:.4f} (+/- {results['recall_std']:.4f})")
+        logger.info(f"  F1-Score: {results['f1_mean']:.4f} (+/- {results['f1_std']:.4f})")
         return results
+
+    def optimize_threshold(self, model, X_val, y_val,
+                           metric: str = 'f1') -> Tuple[float, Dict]:
+        """Grid-search the decision threshold for the best target metric.
+
+        Ported from email-phishing-detector (Group B consolidation): the
+        evaluator applies thresholds, but nothing could *find* the best one.
+        Sweeps 0.10–0.85 in 0.05 steps on validation data.
+
+        Returns:
+            Tuple of (best_threshold, metrics_at_best_threshold)
+        """
+        from sklearn.metrics import precision_score, recall_score, f1_score
+
+        logger.info(f"Optimizing threshold for {metric}...")
+
+        y_proba = model.predict_proba(X_val)[:, 1]
+        thresholds = np.arange(0.1, 0.9, 0.05)
+        best_score = 0.0
+        best_threshold = 0.5
+        best_metrics: Dict = {}
+
+        for threshold in thresholds:
+            y_pred = (y_proba >= threshold).astype(int)
+
+            precision = precision_score(y_val, y_pred, zero_division=0)
+            recall = recall_score(y_val, y_pred, zero_division=0)
+            f1 = f1_score(y_val, y_pred, zero_division=0)
+
+            score = {'precision': precision, 'recall': recall}.get(metric, f1)
+
+            if score > best_score:
+                best_score = score
+                best_threshold = float(threshold)
+                best_metrics = {
+                    'precision': precision,
+                    'recall': recall,
+                    'f1': f1,
+                    'threshold': float(threshold),
+                }
+
+        logger.info(f"Optimal threshold: {best_threshold:.3f}")
+        logger.info(f"  Precision: {best_metrics.get('precision', 0.0):.4f}")
+        logger.info(f"  Recall: {best_metrics.get('recall', 0.0):.4f}")
+        logger.info(f"  F1-Score: {best_metrics.get('f1', 0.0):.4f}")
+
+        return best_threshold, best_metrics
