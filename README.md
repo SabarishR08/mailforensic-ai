@@ -1,13 +1,13 @@
-# Mailforensic Ai Sih26106
+# Mailforensic AI
 
 ![License](https://img.shields.io/badge/license-MIT-green) ![Language](https://img.shields.io/badge/language-Python-informational) ![Docker](https://img.shields.io/badge/docker-ready-2496ed) ![Deploy](https://img.shields.io/badge/deploy-Render-46e3b7)
 
 
-## 📌 Overview
+## Overview
 
 AI-powered email threat detection, geolocation and forensic intelligence platform — SIH 2026, AICTE problem statement
 
-## 🏗️ Architecture
+## Architecture
 
 ```text
 Browser / UI
@@ -20,7 +20,7 @@ Flask, WebSockets (Flask-SocketIO) app (handlers: api, dashboard, email, forensi
      └──▶ External services — Google Gemini, VirusTotal, Google Safe Browsing, AbuseIPDB, Gmail API, Google APIs, GeoIP · ML models — scikit-learn, XGBoost, LightGBM, PyTorch, Transformers
 ```
 
-## 🧰 Tech Stack
+## Tech Stack
 
 - **Language:** Python
 - **Backend:** Flask, WebSockets (Flask-SocketIO)
@@ -29,7 +29,7 @@ Flask, WebSockets (Flask-SocketIO) app (handlers: api, dashboard, email, forensi
 - **Integrations:** Google Gemini, VirusTotal, Google Safe Browsing, AbuseIPDB, Gmail API, Google APIs, GeoIP
 - **Deployment:** Docker container / Render (render.yaml)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -39,8 +39,8 @@ Flask, WebSockets (Flask-SocketIO) app (handlers: api, dashboard, email, forensi
 ### 1. Clone
 
 ```bash
-git clone https://github.com/SabarishR08/mailforensic-ai-sih26106.git
-cd mailforensic-ai-sih26106
+git clone https://github.com/SabarishR08/mailforensic-ai.git
+cd mailforensic-ai
 ```
 
 ### 2. Install dependencies
@@ -77,7 +77,7 @@ python backend/routes/dashboard.py
 docker compose up --build
 ```
 
-### 🖥️ React Frontend (optional SPA)
+### React Frontend (optional SPA)
 
 The dashboard UI also ships as a **React + Vite + TypeScript** SPA in [`frontend/`](frontend/). It talks to the exact same Flask APIs and Socket.IO events, so the backend is unchanged.
 
@@ -92,7 +92,7 @@ Flask automatically serves the built SPA (instead of the Jinja templates) whenev
 
 > The old Jinja2 templates in `dashboard/templates/` remain in the repo and stay fully functional (set `FRONTEND_SPA=0`) — safe to remove once the SPA is battle-tested.
 
-## ☁️ Deployment
+## Deployment
 
 Defined in `render.yaml` (web service `ai-email-forensics`) with `autoDeploy` enabled — pushes to the default branch trigger a Render deploy.
 
@@ -100,28 +100,28 @@ Defined in `render.yaml` (web service `ai-email-forensics`) with `autoDeploy` en
 ---
 
 > **SIH26106** — Smart India Hackathon 2026 | AICTE Problem Statement
-> **Team Mutex** — [Live Demo](https://sih26106-email-forensics.onrender.com/dashboard)
+> [Live Demo](https://sih26106-email-forensics.onrender.com/dashboard)
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 | Resource | Link |
 |----------|------|
-| 🌐 **Live Platform** | [sih26106-email-forensics.onrender.com](https://sih26106-email-forensics.onrender.com/dashboard) |
-| 📂 **Training Datasets** | [Google Drive Folder](https://drive.google.com/drive/folders/1MqyAdNHZFGVQzfDx5VwszbqbiEgm-Wg0?usp=drive_link) |
-| 📓 **Colab Training Notebook** | [Open in Colab](https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1?usp=sharing) |
-| 📦 **GitHub Repository** | [github.com/SabarishR08/sih26106](https://github.com/SabarishR08/sih26106) |
+| **Live Platform** | [sih26106-email-forensics.onrender.com](https://sih26106-email-forensics.onrender.com/dashboard) |
+| **Training Datasets** | [Google Drive Folder](https://drive.google.com/drive/folders/1MqyAdNHZFGVQzfDx5VwszbqbiEgm-Wg0?usp=drive_link) |
+| **Colab Training Notebook** | [Open in Colab](https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1?usp=sharing) |
+| **GitHub Repository** | [github.com/SabarishR08/mailforensic-ai](https://github.com/SabarishR08/mailforensic-ai) |
 
 ---
 
-## 📋 Problem Statement
+## Problem Statement
 
 Build an AI-powered platform that detects email-based threats (phishing, BEC, malware), traces sender geolocation, and generates forensic intelligence reports — combining ML classification, threat intelligence fusion, email header forensics, and geolocation risk scoring into a single dashboard.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -164,29 +164,29 @@ Build an AI-powered platform that detects email-based threats (phishing, BEC, ma
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| **ML Email Detection** | ✅ | Adaptive ensemble: XGBoost (97.39%) + LightGBM (97.56%) by default; auto-upgrades to full 3-model ensemble with DistilBERT (98.92%) when `requirements-torch.txt` is installed. Live Render deployment runs XGB+LGB only. All figures from evaluated test-set results in `model_comparison.json`. |
-| **Geolocation** | ✅ | IP → City/Country/ASN via MaxMind GeoLite2 + ipapi.co fallback |
-| **Email Forensics** | ✅ | SPF/DKIM/DMARC analysis, Received chain tracing, per-hop geo |
-| **Unified Risk Scoring** | ✅ | Weighted 6-signal composite (ML + intel + auth + geo + forensic + content) |
-| **Threat Intelligence** | ✅ | VirusTotal + Google SafeBrowsing + PhishTank + RDAP + AbuseIPDB |
-| **PDF Forensic Reports** | ✅ | Downloadable per-email forensic breakdown (ReportLab) |
-| **Threat Map** | ✅ | Leaflet.js geospatial visualization of threat origins |
-| **Live Demo Mode** | ✅ | Real-time SocketIO email analysis with streaming results |
-| **Forensic .eml Upload** | ✅ | Drag-and-drop .eml file analysis without Gmail credentials |
-| **Threat Intel Dashboard** | ✅ | Phishing trends, auth failure rates, country heatmap (Chart.js) |
-| **Gmail Integration** | ✅ | Live inbox scan with full pipeline analysis (OAuth 2.0) |
-| **AI Enrichment** | ✅ | Gemini NLP for explainable phishing classification |
-| **Unit Tests** | ✅ | 95 passing tests (ML pipeline + forensics + services) |
-| **Docker Support** | ✅ | One-command deployment via Docker Compose |
-| **Render Deployment** | ✅ | Free-tier live deployment with auto-deploy from GitHub |
+| **ML Email Detection** | Yes | Adaptive ensemble: XGBoost (97.39%) + LightGBM (97.56%) by default; auto-upgrades to full 3-model ensemble with DistilBERT (98.92%) when `requirements-torch.txt` is installed. Live Render deployment runs XGB+LGB only. All figures from evaluated test-set results in `model_comparison.json`. |
+| **Geolocation** | Yes | IP → City/Country/ASN via MaxMind GeoLite2 + ipapi.co fallback |
+| **Email Forensics** | Yes | SPF/DKIM/DMARC analysis, Received chain tracing, per-hop geo |
+| **Unified Risk Scoring** | Yes | Weighted 6-signal composite (ML + intel + auth + geo + forensic + content) |
+| **Threat Intelligence** | Yes | VirusTotal + Google SafeBrowsing + PhishTank + RDAP + AbuseIPDB |
+| **PDF Forensic Reports** | Yes | Downloadable per-email forensic breakdown (ReportLab) |
+| **Threat Map** | Yes | Leaflet.js geospatial visualization of threat origins |
+| **Live Demo Mode** | Yes | Real-time SocketIO email analysis with streaming results |
+| **Forensic .eml Upload** | Yes | Drag-and-drop .eml file analysis without Gmail credentials |
+| **Threat Intel Dashboard** | Yes | Phishing trends, auth failure rates, country heatmap (Chart.js) |
+| **Gmail Integration** | Yes | Live inbox scan with full pipeline analysis (OAuth 2.0) |
+| **AI Enrichment** | Yes | Gemini NLP for explainable phishing classification |
+| **Unit Tests** | Yes | 95 passing tests (ML pipeline + forensics + services) |
+| **Docker Support** | Yes | One-command deployment via Docker Compose |
+| **Render Deployment** | Yes | Free-tier live deployment with auto-deploy from GitHub |
 
 ---
 
-## 🧠 Machine Learning Models
+## Machine Learning Models
 
 ### Training Overview
 
@@ -277,7 +277,7 @@ Input Email Text
 
 ---
 
-## 📊 Training Datasets
+## Training Datasets
 
 All datasets are hosted on [Google Drive](https://drive.google.com/drive/folders/1MqyAdNHZFGVQzfDx5VwszbqbiEgm-Wg0?usp=drive_link) and also included locally in `training/datasets/`.
 
@@ -325,7 +325,7 @@ The Colab notebook includes fixes for issues found in earlier notebook versions:
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Live Demo (Already Deployed)
 
@@ -344,8 +344,8 @@ Visit **[sih26106-email-forensics.onrender.com](https://sih26106-email-forensics
 
 ```bash
 # Clone the repo
-git clone https://github.com/SabarishR08/sih26106.git
-cd sih26106
+git clone https://github.com/SabarishR08/mailforensic-ai.git
+cd mailforensic-ai
 
 # Install dependencies
 pip install -r requirements.txt
@@ -367,7 +367,7 @@ docker compose up --build
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Email Classification
 
@@ -413,10 +413,10 @@ curl -X POST https://sih26106-email-forensics.onrender.com/email/api/scan/text \
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-sih26106/
+mailforensic-ai/
 ├── backend/
 │   ├── ml/                          # Trained models + inference
 │   │   ├── models/
@@ -480,7 +480,7 @@ sih26106/
 
 ---
 
-## 🔧 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -497,7 +497,7 @@ sih26106/
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all 95 tests
@@ -513,7 +513,7 @@ All tests use synthetic data and mocks — no network, no trained models, no dat
 
 ---
 
-## 👥 Team: Mutex
+## Contributors
 
 | Member | Role | Track |
 |--------|------|-------|
@@ -524,21 +524,21 @@ All tests use synthetic data and mocks — no network, no trained models, no dat
 
 ---
 
-## 📜 License
+## License
 
 This project was developed for **Smart India Hackathon 2026** (SIH26106). For academic and demonstration purposes.
 
 ---
 
 <p align="center">
-  <b>Built with 🛡️ by Team Mutex for SIH 2026</b><br>
-  <a href="https://sih26106-email-forensics.onrender.com/dashboard">Live Demo</a> •
-  <a href="https://github.com/SabarishR08/sih26106">GitHub</a> •
-  <a href="https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1">Colab</a>
+ <b>Built for SIH 2026</b><br>
+ <a href="https://sih26106-email-forensics.onrender.com/dashboard">Live Demo</a> •
+ <a href="https://github.com/SabarishR08/mailforensic-ai">GitHub</a> •
+ <a href="https://colab.research.google.com/drive/1Rqz3TkPnmXebt8jz39oWvjM6Q-P4J-T1">Colab</a>
 </p>
 
 ---
 
-## 📄 License
+## License
 
 [MIT](LICENSE) — © 2026 Sabarish R.
