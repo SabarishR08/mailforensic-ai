@@ -309,6 +309,68 @@ class TestModelBuilder:
         assert all(p in ['phishing', 'legitimate'] for p in preds)
 
 
+class TestModelBuilderPorts:
+    """Tests for the email-phishing-detector ports (Group B consolidation):
+    prefit calibration, full-metric cross-validation, threshold optimization."""
+
+    @staticmethod
+    def _make_model_and_data():
+        """Small deterministic LR + synthetic features (binary labels)."""
+        from sklearn.linear_model import LogisticRegression
+        rng = np.random.RandomState(42)
+        n = 200
+        # Two informative dims + noise dims; class follows the signal
+        X = rng.randn(n, 4)
+        y = (X[:, 0] + X[:, 1] + 0.1 * rng.randn(n) > 0).astype(int)
+        model = LogisticRegression(max_iter=500, random_state=42)
+        return model, X, y
+
+    def test_calibrate_model_prefit(self):
+        """Prefit calibration (isotonic + sigmoid) works and preserves predict_proba."""
+        model, X, y = self._make_model_and_data()
+        model.fit(X, y)
+        mb = ModelBuilder(random_state=42)
+        for method in ('isotonic', 'sigmoid'):
+            calibrated = mb.calibrate_model(model, X, y, method=method)
+            proba = calibrated.predict_proba(X)
+            assert proba.shape == (len(y), 2)
+            assert np.allclose(proba.sum(axis=1), 1.0)
+
+    def test_cross_validate_full_metrics(self):
+        """CV returns mean + std for accuracy/precision/recall/f1."""
+        model, X, y = self._make_model_and_data()
+        mb = ModelBuilder(random_state=42)
+        results = mb.cross_validate(model, X, y, cv=3)
+        for metric in ('accuracy', 'precision', 'recall', 'f1'):
+            assert f'{metric}_mean' in results and f'{metric}_std' in results
+            assert 0.0 <= results[f'{metric}_mean'] <= 1.0
+        # Legacy flat keys still present
+        assert 'accuracy_mean' in results and 'f1_mean' in results
+
+    def test_optimize_threshold_finds_best_f1(self):
+        """Threshold search beats or matches the 0.5 default on F1."""
+        model, X, y = self._make_model_and_data()
+        model.fit(X, y)
+        mb = ModelBuilder(random_state=42)
+        best_threshold, metrics = mb.optimize_threshold(model, X, y, metric='f1')
+        assert 0.1 <= best_threshold <= 0.85
+        assert {'precision', 'recall', 'f1', 'threshold'} <= set(metrics)
+        # Sanity: at the chosen threshold, F1 equals the reported best F1
+        y_proba = model.predict_proba(X)[:, 1]
+        y_pred = (y_proba >= best_threshold).astype(int)
+        from sklearn.metrics import f1_score
+        assert f1_score(y, y_pred) == pytest.approx(metrics['f1'])
+
+    def test_optimize_threshold_metric_selection(self):
+        """metric='recall' picks a threshold whose recall >= the F1-optimal one."""
+        model, X, y = self._make_model_and_data()
+        model.fit(X, y)
+        mb = ModelBuilder(random_state=42)
+        _, f1_metrics = mb.optimize_threshold(model, X, y, metric='f1')
+        _, rec_metrics = mb.optimize_threshold(model, X, y, metric='recall')
+        assert rec_metrics['recall'] >= f1_metrics['recall'] - 1e-9
+
+
 # ---------------------------------------------------------------------------
 # ModelEvaluator Tests
 # ---------------------------------------------------------------------------
