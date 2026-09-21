@@ -513,17 +513,6 @@ All tests use synthetic data and mocks — no network, no trained models, no dat
 
 ---
 
-## Contributors
-
-| Member | Role | Track |
-|--------|------|-------|
-| **Sabarish R** | ML Integration + Architecture | Model training, pipeline, deployment |
-| **Vignesh** | Geolocation | IP lookup, country risk scoring, map visualization |
-| **Shafeeq** | Forensic Intelligence | Header forensics, routing chain, PDF reports |
-| **Rohith** | Dashboard + Demo | UI templates, live demo, browser extension |
-
----
-
 ## License
 
 This project was developed for **Smart India Hackathon 2026** (SIH26106). For academic and demonstration purposes.
