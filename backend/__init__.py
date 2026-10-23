@@ -1,4 +1,4 @@
-"""Backend package initialization.
+"""Backend package for mailforensic-ai.
 
-This module sets up the backend package and provides a clear entry point for documentation tools.
+Provides core Flask application components and utilities.
 """
