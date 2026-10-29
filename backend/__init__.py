@@ -1,4 +1,6 @@
-"""Backend package for mailforensic-ai.
+"""
+MailForensic AI Backend Package.
 
-Provides core Flask application components and utilities.
+Provides core backend services, machine learning pipelines,
+forensic analysis utilities, and API endpoints for email threat detection.
 """
