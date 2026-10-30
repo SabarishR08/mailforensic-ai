@@ -1,4 +1,9 @@
-"""Flask extensions with graceful fallback if flask_socketio is not installed"""
+"""
+Flask extensions module.
+
+Initializes Flask extensions, including SocketIO for real-time WebSocket messaging,
+with a graceful fallback class if flask_socketio is not installed.
+"""
 
 try:
     from flask_socketio import SocketIO
