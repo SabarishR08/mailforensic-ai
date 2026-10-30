@@ -1,5 +1,8 @@
 """
-Database Models
+Database models for email security threat logs and email scan results.
+
+Provides SQLAlchemy ORM mappings for recording threat events, malicious URLs,
+risk scores, geolocation metadata, and forensic analysis outputs.
 """
 
 from flask_sqlalchemy import SQLAlchemy
