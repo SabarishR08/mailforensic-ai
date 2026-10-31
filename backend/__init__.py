@@ -1,6 +1,6 @@
 """
-MailForensic AI Backend Package.
+MailForensic AI backend package.
 
-Provides core backend services, machine learning pipelines,
-forensic analysis utilities, and API endpoints for email threat detection.
+Provides backend API services, machine learning threat detection,
+forensic header analysis, and database models.
 """
