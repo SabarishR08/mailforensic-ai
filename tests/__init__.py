@@ -1,6 +1,6 @@
 """
-MailForensic AI Test Suite Package.
+Test suite package for MailForensic AI backend and ML modules.
 
-Contains unit and integration tests for ML pipeline classification,
-backend services, and digital forensic email analysis.
+Provides unit and integration tests covering backend services, machine learning
+predictions, threat detection logic, and forensic email header analysis.
 """
