@@ -1,3 +1,3 @@
 """
-Test suite for MailForensic AI platform.
+Test suite package for MailForensic AI.
 """
