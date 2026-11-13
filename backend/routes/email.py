@@ -6,7 +6,7 @@ import re
 import threading
 from datetime import datetime
 from pathlib import Path
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, current_app
 try:
     from flask_socketio import join_room
 except ImportError:
